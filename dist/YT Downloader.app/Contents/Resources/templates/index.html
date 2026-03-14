@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YT Downloader</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="bg"><div class="grain"></div></div>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">YT Downloader</div>
+        <div class="brand-sub">
+          <span>by M0stafa</span>
+          <span class="brand-sub-dot"></span>
+          <span>Playlist &amp; Single Video</span>
+        </div>
+      </div>
+    </div>
+    <p class="header-desc">Download any YouTube video or full playlist with custom quality, format and resolution.</p>
+  </div>
+
+  <!-- SAVE LOCATION -->
+  <div class="glass">
+    <div class="card-row">
+      <span class="slabel">Save Location</span>
+    </div>
+    <div class="folder-row">
+      <div class="folder-path" id="folderDisp">~/Downloads</div>
+      <button class="btn-ghost" onclick="pickFolder()">Choose Folder</button>
+    </div>
+  </div>
+
+  <!-- DOWNLOAD -->
+  <div class="glass">
+    <span class="slabel" style="display:block;margin-bottom:12px">YouTube URL</span>
+
+    <div class="input-wrap">
+      <input type="text" id="urlInput" placeholder="Paste video or playlist URL…" oninput="onUrl(this)"/>
+      <button class="inp-clear" id="xBtn" onclick="clearUrl()">✕</button>
+    </div>
+
+    <div class="opts-grid">
+      <div class="opt-group">
+        <span class="opt-lbl">Resolution</span>
+        <div class="seg sq">
+          <input type="radio" name="q" id="qb" value="best" checked><label for="qb">Best</label>
+          <input type="radio" name="q" id="q4" value="4k"><label for="q4">4K</label>
+          <input type="radio" name="q" id="q10" value="1080"><label for="q10">1080p</label>
+          <input type="radio" name="q" id="q72" value="720"><label for="q72">720p</label>
+          <input type="radio" name="q" id="q48" value="480"><label for="q48">480p</label>
+          <input type="radio" name="q" id="q36" value="360"><label for="q36">360p</label>
+        </div>
+      </div>
+      <div class="opt-group">
+        <span class="opt-lbl">Format</span>
+        <div class="seg sf">
+          <input type="radio" name="ft" id="fmp4" value="mp4" checked><label for="fmp4">MP4</label>
+          <input type="radio" name="ft" id="fmkv" value="mkv"><label for="fmkv">MKV</label>
+          <input type="radio" name="ft" id="fmp3" value="mp3"><label for="fmp3">MP3</label>
+          <input type="radio" name="ft" id="fm4a" value="m4a"><label for="fm4a">M4A</label>
+        </div>
+      </div>
+      <div class="opt-group">
+        <span class="opt-lbl">Cookies From</span>
+        <div class="seg sb">
+          <input type="radio" name="br" id="bsaf" value="safari" checked><label for="bsaf">Safari</label>
+          <input type="radio" name="br" id="bch" value="chrome"><label for="bch">Chrome</label>
+          <input type="radio" name="br" id="bff" value="firefox"><label for="bff">Firefox</label>
+          <input type="radio" name="br" id="bno" value="none"><label for="bno">None</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice">Keep the selected browser open and logged into YouTube before downloading.</div>
+
+    <button class="btn-primary" id="dlBtn" onclick="startDownload()">Download Now</button>
+    <div class="prog-wrap" id="prog-wrap"><div class="prog-bar" id="prog-bar"></div></div>
+
+    <!-- Speed Widget -->
+    <div class="speed-widget" id="speedWidget">
+      <div class="sw-head">
+        <span class="sw-lbl">Live Progress</span>
+        <span class="sw-item-txt" id="sw-item"></span>
+      </div>
+      <div class="sw-file" id="sw-file">Fetching info…</div>
+      <div class="sw-track"><div class="sw-fill" id="sw-bar"></div></div>
+      <div class="sw-stats">
+        <div class="sw-stat spd"><div class="sw-val" id="sw-speed">—</div><div class="sw-key">Speed</div></div>
+        <div class="sw-stat eta"><div class="sw-val" id="sw-eta">—</div><div class="sw-key">ETA</div></div>
+        <div class="sw-stat pct"><div class="sw-val" id="sw-pct">0%</div><div class="sw-key">Progress</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TERMINAL LOG -->
+  <div class="glass">
+    <div class="card-row">
+      <span class="slabel">Download Log</span>
+      <span id="badge" class="badge s-idle"><span class="dot"></span>Idle</span>
+    </div>
+    <div class="terminal">
+      <div class="term-bar">
+        <span class="td td-r"></span>
+        <span class="td td-y"></span>
+        <span class="td td-g"></span>
+        <span class="term-title">yt-downloader — bash</span>
+      </div>
+      <div class="term-body" id="termBody">
+        <div class="tl">
+          <span class="tl-t">[--:--:--]</span>
+          <span class="tl-k tag-INFO">INFO</span>
+          <span class="tl-m msg-INFO">Ready. Paste a URL above and press Download Now.</span>
+        </div>
+        <span class="cursor" id="cursor"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOWNLOADED FILES -->
+  <div class="glass">
+    <div class="files-top">
+      <div>
+        <span class="slabel">Downloaded Files</span>
+        <div class="files-meta">
+          <span class="files-count" id="filesCount">0 files</span>
+          <span class="live-dot" id="liveDot"></span>
+        </div>
+        <div class="ftype-row" id="ftypeRow"></div>
+      </div>
+      <button class="btn-ghost" onclick="loadFiles()" style="font-size:.72rem;padding:7px 12px">Refresh</button>
+    </div>
+    <ul class="flist" id="flist">
+      <li class="empty">
+        <div class="empty-sub">No Downloads Yet</div>
+        Start a download above to see files here
+      </li>
+    </ul>
+  </div>
+
+    <div class="footer">
+    <div class="footer-line"></div>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="footer-icon">
+          <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </div>
+        <span class="footer-name">YT Downloader</span>
+      </div>
+      <p class="footer-credit">Crafted with <span class="heart">♥</span> by <b>M0stafa</b></p>
+      <div class="footer-stack">
+        <span>yt-dlp</span><span>Flask</span><span>Python</span><span>pywebview</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</div>
+<script src="/static/app.js"></script>
+</body>
+</html>
