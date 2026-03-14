@@ -29,6 +29,7 @@ def start_download():
     data     = request.json
     url      = data.get('url', '').strip()
     save_dir = data.get('folder') or CURRENT_DIR
+    if save_dir: CURRENT_DIR = save_dir
     browser  = data.get('browser', 'safari')
     quality  = data.get('quality', 'best')
     filetype = data.get('filetype', 'mp4')
@@ -40,13 +41,21 @@ def start_download():
     downloader.start(tid, url, save_dir, browser, quality, filetype)
     return jsonify({'task_id': tid})
 
+
+@app.route('/cancel/<tid>', methods=['POST'])
+def cancel_download(tid):
+    if tid in downloader.tasks:
+        downloader.tasks[tid]['cancel'] = True
+        return jsonify({'success': True})
+    return jsonify({'success': False}), 404
+
 @app.route('/status/<tid>')
 def get_status(tid):
     return jsonify(downloader.tasks.get(tid, {'status': 'not_found', 'log': []}))
 
 @app.route('/files')
 def list_files():
-    folder = request.args.get('folder', CURRENT_DIR)
+    folder = request.args.get('folder', CURRENT_DIR) or CURRENT_DIR
     return jsonify(list_video_files(folder))
 
 @app.route('/get-file')

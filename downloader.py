@@ -1,6 +1,15 @@
 import yt_dlp, os, threading
 from datetime import datetime
 from utils import get_format_opts
+import re as _re
+
+def _clean(s):
+    if not s: return s
+    s = str(s)
+    s = _re.sub(r'\x1b\[[0-9;]*[A-Za-z]', '', s)
+    s = _re.sub(r'\[[0-9;]*[mGKHFJABCDsu]', '', s)
+    s = _re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', s)
+    return s.strip()
 
 tasks = {}
 
@@ -8,30 +17,34 @@ def ts():
     return datetime.now().strftime('%H:%M:%S')
 
 def log(tid, level, msg):
-    tasks[tid]['log'].append({'time': ts(), 'level': level, 'msg': msg})
+    tasks[tid]['log'].append({'time': ts(), 'level': level, 'msg': _clean(msg)})
 
 def download_task(tid, url, save_dir, browser, quality, filetype):
-    tasks[tid] = {
-        'status': 'downloading', 'log': [],
+    tasks[tid].update({
+        'status': 'downloading', 'log': tasks[tid].get('log', []),
         'speed': '', 'eta': '', 'percent': '0%',
-        'current_file': '', 'item': 0, 'total': 0, 'progress': 0
-    }
+        'current_file': '', 'item': 0, 'total': 0, 'progress': 0,
+        'cancel': False
+    })
     os.makedirs(save_dir, exist_ok=True)
     is_pl = 'list=' in url
 
     def hook(d):
+        # Check cancel flag
+        if tasks[tid].get('cancel'):
+            raise Exception('Download cancelled by user')
+
         if d['status'] == 'downloading':
             fname = os.path.splitext(os.path.basename(d.get('filename','')))[0]
-            spd   = d.get('_speed_str','').strip()
-            eta   = d.get('_eta_str','').strip()
-            pct   = d.get('_percent_str','0%').strip()
-            total = d.get('_total_bytes_str') or d.get('_total_bytes_estimate_str') or ''
+            spd  = _clean(d.get('_speed_str',''))
+            eta  = _clean(d.get('_eta_str',''))
+            pct  = _clean(d.get('_percent_str','0%'))
             tasks[tid]['speed']        = spd
             tasks[tid]['eta']          = eta
             tasks[tid]['percent']      = pct
             tasks[tid]['current_file'] = fname[:58]+'…' if len(fname)>58 else fname
             try:
-                tasks[tid]['progress'] = float(pct.replace('%','').strip())
+                tasks[tid]['progress'] = float(pct.replace('%','').strip() or 0)
             except Exception:
                 pass
             log(tid, 'DL', f'{pct}  {spd}  ETA {eta}  —  {fname[:46]}')
@@ -68,13 +81,18 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
                 tasks[tid]['total'] = 1
             log(tid, 'INFO', 'Download started…')
             ydl.download([url])
-        tasks[tid]['status']  = 'done'
+        tasks[tid]['status']   = 'done'
         tasks[tid]['progress'] = 100
         tasks[tid]['speed']    = ''
         log(tid, 'SUCCESS', 'All downloads complete.')
     except Exception as e:
-        tasks[tid]['status'] = 'error'
-        log(tid, 'ERROR', str(e))
+        msg = str(e)
+        if 'cancelled' in msg.lower():
+            tasks[tid]['status'] = 'cancelled'
+            log(tid, 'ERROR', 'Download cancelled.')
+        else:
+            tasks[tid]['status'] = 'error'
+            log(tid, 'ERROR', msg)
 
 def start(tid, url, save_dir, browser, quality, filetype):
     t = threading.Thread(target=download_task, args=(tid, url, save_dir, browser, quality, filetype))
