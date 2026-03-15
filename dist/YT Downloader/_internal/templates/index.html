@@ -84,7 +84,12 @@
 
     <div class="notice">Keep the selected browser open and logged into YouTube before downloading.</div>
 
-    <button class="btn-primary" id="dlBtn" onclick="startDownload()">Download Now</button>
+    <div class="btn-row">
+        <button class="btn-primary" id="dlBtn" onclick="startDownload()">Download Now</button>
+        <button class="btn-cancel" id="cancelBtn" onclick="cancelDownload()" style="display:none">
+          <span class="btn-cancel-icon">✕</span> Cancel
+        </button>
+      </div>
     <div class="prog-wrap" id="prog-wrap"><div class="prog-bar" id="prog-bar"></div></div>
 
     <!-- Speed Widget -->
@@ -138,17 +143,23 @@
         </div>
         <div class="ftype-row" id="ftypeRow"></div>
       </div>
-      <button class="btn-ghost" onclick="loadFiles()" style="font-size:.72rem;padding:7px 12px">Refresh</button>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="btn-ghost" onclick="loadFiles()" style="font-size:.72rem;padding:7px 12px">↻ Refresh</button>
+        <button class="btn-ghost btn-clear-hist" onclick="clearHistory()" style="font-size:.72rem;padding:7px 12px;color:#f87171;">✕ Clear</button>
+        <button class="btn-toggle" id="toggleFilesBtn" onclick="toggleFiles()">
+          <span id="toggleIcon">▾</span> <span id="toggleTxt">Hide</span>
+        </button>
+      </div>
     </div>
-    <ul class="flist" id="flist">
+    <div id="filesBody"><ul class="flist" id="flist">
       <li class="empty">
         <div class="empty-sub">No Downloads Yet</div>
         Start a download above to see files here
       </li>
-    </ul>
+    </ul></div>
   </div>
 
-    <div class="footer">
+  <div class="footer">
     <div class="footer-line"></div>
     <div class="footer-inner">
       <div class="footer-left">
@@ -157,7 +168,7 @@
         </div>
         <span class="footer-name">YT Downloader</span>
       </div>
-      <p class="footer-credit">Crafted with <span class="heart">♥</span> by <b>M0stafa</b></p>
+      <p class="footer-credit">Crafted with <span class="heart">♥</span> by <a href="https://www.linkedin.com/in/m0stafa-kamal/" target="_blank" class="footer-link"><b>M0stafa</b></a></p>
       <div class="footer-stack">
         <span>yt-dlp</span><span>Flask</span><span>Python</span><span>pywebview</span>
       </div>

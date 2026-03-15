@@ -10,7 +10,7 @@
 		</data>
 		<key>Resources/base_library.zip</key>
 		<data>
-		G0W/yUe4piV/rWoULoSRE+R3aWo=
+		+UqJL6Vk09U3E0z8Ft9khtVZBzU=
 		</data>
 		<key>Resources/certifi/cacert.pem</key>
 		<data>
@@ -50,7 +50,7 @@
 		</data>
 		<key>Resources/flask-3.1.3.dist-info/RECORD</key>
 		<data>
-		T4+S3ux2PUTkIQ5rxEr+aScuHxA=
+		2BnEdQTmzK5nVUNlGD3bPOqtHpQ=
 		</data>
 		<key>Resources/flask-3.1.3.dist-info/REQUESTED</key>
 		<data>
@@ -146,15 +146,15 @@
 		</data>
 		<key>Resources/static/app.js</key>
 		<data>
-		2d7S7n1hT6giRQcX7WhElkXVIkY=
+		+6jIXBZsEJYRV+YmwjmctCdWr2M=
 		</data>
 		<key>Resources/static/style.css</key>
 		<data>
-		8IJlUu4o/1sFCGRpYIa5okiPioA=
+		wOBkEHzuFje6h+ZJKKxcKOHpAbI=
 		</data>
 		<key>Resources/templates/index.html</key>
 		<data>
-		mTGAKEYuML4Iv9iErQerp0ingR0=
+		4jLP56Lu4bqkbFu8cTE7g6jRs5Q=
 		</data>
 		<key>Resources/webview/js/api.js</key>
 		<data>
@@ -199,14 +199,6 @@
 		<key>Resources/werkzeug-3.1.6.dist-info/licenses/LICENSE.txt</key>
 		<data>
 		xNvbwSkm1NUskVbmkGQPNyYVwjQ=
-		</data>
-		<key>Resources/yt_dlp_ejs/yt/solver/core.min.js</key>
-		<data>
-		+vik1WFuglTYeiehm2Va3cZLuSs=
-		</data>
-		<key>Resources/yt_dlp_ejs/yt/solver/lib.min.js</key>
-		<data>
-		JbHcfqddcy3UakecdUCbyByWxbw=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -951,11 +943,6 @@
 			<key>symlink</key>
 			<string>../Resources/werkzeug-3.1.6.dist-info</string>
 		</dict>
-		<key>Frameworks/yt_dlp_ejs</key>
-		<dict>
-			<key>symlink</key>
-			<string>../Resources/yt_dlp_ejs</string>
-		</dict>
 		<key>Resources/81d243bd2c585b0f4821__mypyc.cpython-314-darwin.so</key>
 		<dict>
 			<key>symlink</key>
@@ -1002,7 +989,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Jqvw/slRPArKw36ky4YlitWDYvXFoApwEN/isiA9nnU=
+			38W6XNA0g/aKvS4wFINrrymLjWWTLcaBIAjdJMOYi6Q=
 			</data>
 		</dict>
 		<key>Resources/certifi/cacert.pem</key>
@@ -1082,7 +1069,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			oXAxc05C7PjheiixmQ4RF0zrUE6ySBo/zpCK/KJBzDs=
+			X5peS+nFGkfVKm5NpwoxIzmZkhJf6HqHl3vEOrfG1Ow=
 			</data>
 		</dict>
 		<key>Resources/flask-3.1.3.dist-info/REQUESTED</key>
@@ -1295,21 +1282,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			s61WU/g60UFZz+mRaKWxWua/O1VFtXf+eQ9yvITFLVk=
+			fwcPXjVRETgKeqRIgvncqLDzkTiAoLXYmVxsuFBmZC4=
 			</data>
 		</dict>
 		<key>Resources/static/style.css</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			zZ6t2NZsenNPlkysSSDr2BZ15Ge/cyfp3wLFsbIHk6U=
+			MuGUYy6mMlHpiBK/zSlkEnHWo2JVrhwsb2CVABUwNJE=
 			</data>
 		</dict>
 		<key>Resources/templates/index.html</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			MdoJqGFy5ncW3KBTLR5LAnpdQdBpzIjSI0DLz3mXOPU=
+			+xH0LvIYyIjtdYYrEM7e6CXPz8mZbF7Px1+kNj18GRM=
 			</data>
 		</dict>
 		<key>Resources/webview/js/api.js</key>
@@ -1387,20 +1374,6 @@
 			<key>hash2</key>
 			<data>
 			O0nc7kEF6ze6wQ+vG+JgQI/oXSUrjp3y4JefweCUQ3s=
-			</data>
-		</dict>
-		<key>Resources/yt_dlp_ejs/yt/solver/core.min.js</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			F9DjbTH4q7LvpU6KBkM0CKMESeF9tv927Ve5nSlyp2Y=
-			</data>
-		</dict>
-		<key>Resources/yt_dlp_ejs/yt/solver/lib.min.js</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			xVmH/ml+W57hiDAWP3r4Uyfpu1w+Z0uWnTjI0gXqpXc=
 			</data>
 		</dict>
 	</dict>
