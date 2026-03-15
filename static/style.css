@@ -719,3 +719,29 @@ body {
   padding-right: 16px;
   white-space: nowrap;
 }
+
+/* File list — single column */
+.fi { display: flex; flex-direction: column; padding: 10px 14px; gap: 0; }
+.fi-row {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+}
+.fi-meta { flex: 1; min-width: 0; }
+.fi-name {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-size: .85rem; color: #e2e8f0;
+}
+.fi-open-btn {
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.13);
+  color: #a0aec0;
+  border-radius: 7px;
+  padding: 5px 13px;
+  font-size: .75rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .18s, color .18s;
+}
+.fi-open-btn:hover {
+  background: rgba(255,255,255,.14);
+  color: #fff;
+}

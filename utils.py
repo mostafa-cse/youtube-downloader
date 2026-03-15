@@ -1,50 +1,74 @@
-import subprocess, os, shutil
+import os, subprocess
 
 def pick_folder_mac():
-    script = 'POSIX path of (choose folder with prompt "Select Download Folder:")'
-    r = subprocess.run(['osascript', '-e', script], capture_output=True, text=True)
-    return r.stdout.strip() if r.returncode == 0 and r.stdout.strip() else None
+    # Try Finder-based dialog first (works outside sandbox)
+    script = '''
+tell application "Finder"
+    activate
+    set chosen to choose folder with prompt "Select download folder"
+    return POSIX path of chosen
+end tell
+'''
+    try:
+        out = subprocess.check_output(
+            ['osascript', '-e', script],
+            stderr=subprocess.DEVNULL,
+            timeout=60
+        )
+        return out.decode().strip()
+    except Exception:
+        pass
+    # Fallback: System Events
+    script2 = 'tell app "System Events" to return POSIX path of (choose folder with prompt "Select download folder")'
+    try:
+        out = subprocess.check_output(
+            ['osascript', '-e', script2],
+            stderr=subprocess.DEVNULL,
+            timeout=60
+        )
+        return out.decode().strip()
+    except Exception:
+        return None
 
 def list_video_files(folder):
-    if not folder or not os.path.exists(folder):
+    exts = {'.mp4', '.mkv', '.mp3', '.m4a', '.webm', '.mov', '.flv'}
+    try:
+        files = [f for f in os.listdir(folder)
+                 if os.path.splitext(f)[1].lower() in exts
+                 and not f.startswith('.')]
+        return sorted(files, key=lambda f: os.path.getmtime(os.path.join(folder, f)), reverse=True)
+    except Exception:
         return []
-    exts = ('.mp4', '.mkv', '.webm', '.mp3', '.m4a', '.opus')
-    return sorted([
-        f for f in os.listdir(folder)
-        if f.lower().endswith(exts) and not f.startswith('.')
-    ])
-
-def get_ffmpeg_path():
-    # static_ffmpeg puts it on PATH, shutil.which finds it
-    return shutil.which('ffmpeg')
 
 def get_format_opts(quality, filetype):
-    ffmpeg = get_ffmpeg_path()
-    height_map = {'4k':'2160','1080':'1080','720':'720','480':'480','360':'360','240':'240'}
+    # ── Audio only ──────────────────────────────────────────────
+    if filetype in ('mp3', 'm4a'):
+        codec = 'mp3' if filetype == 'mp3' else 'aac'
+        return {
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': codec,
+                'preferredquality': '320',
+            }]
+        }
 
-    if filetype == 'mp3':
-        opts = {'format': 'bestaudio/best'}
-        if ffmpeg:
-            opts['postprocessors'] = [{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320'}]
-            opts['ffmpeg_location'] = ffmpeg
-        return opts
+    # ── Video: always include /best fallback so it never hard-fails ──
+    fmt_map = {
+        'best':  'bestvideo+bestaudio/best',
+        '4k':    'bestvideo[height<=2160]+bestaudio/bestvideo[height<=2160]/best',
+        '1080p': 'bestvideo[height<=1080]+bestaudio/bestvideo[height<=1080]/best',
+        '720p':  'bestvideo[height<=720]+bestaudio/bestvideo[height<=720]/best',
+        '480p':  'bestvideo[height<=480]+bestaudio/bestvideo[height<=480]/best',
+        '360p':  'bestvideo[height<=360]+bestaudio/bestvideo[height<=360]/best',
+    }
 
-    if filetype == 'm4a':
-        opts = {'format': 'bestaudio[ext=m4a]/bestaudio/best'}
-        if ffmpeg:
-            opts['postprocessors'] = [{'key':'FFmpegExtractAudio','preferredcodec':'m4a'}]
-            opts['ffmpeg_location'] = ffmpeg
-        return opts
+    fmt = fmt_map.get(quality.lower(), 'bestvideo+bestaudio/best')
+    opts = {'format': fmt}
 
-    merge = 'mkv' if filetype == 'mkv' else 'mp4'
-    if ffmpeg:
-        if quality in height_map:
-            h = height_map[quality]
-            fmt = f'bestvideo[height<={h}][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<={h}]+bestaudio/best[height<={h}]'
-        else:
-            fmt = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best'
-        return {'format': fmt, 'merge_output_format': merge, 'ffmpeg_location': ffmpeg}
-    else:
-        h = height_map.get(quality, '')
-        fmt = f'best[height<={h}][ext=mp4]/best[height<={h}]/best' if h else 'best[ext=mp4]/best'
-        return {'format': fmt}
+    if filetype == 'mp4':
+        opts['merge_output_format'] = 'mp4'
+    elif filetype == 'mkv':
+        opts['merge_output_format'] = 'mkv'
+
+    return opts

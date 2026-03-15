@@ -17,7 +17,17 @@ def ts():
     return datetime.now().strftime('%H:%M:%S')
 
 def log(tid, level, msg):
-    tasks[tid]['log'].append({'time': ts(), 'level': level, 'msg': _clean(msg)})
+    tasks[tid]['log'].append({'time': ts(), 'level': level, 'msg': _clean(str(msg))})
+
+def log_update_last(tid, level, msg):
+    """Update the last log entry if it's a DL line, else append."""
+    logs = tasks[tid]['log']
+    msg = _clean(str(msg))
+    if logs and logs[-1]['level'] == 'DL':
+        logs[-1]['msg']  = msg
+        logs[-1]['time'] = ts()
+    else:
+        logs.append({'time': ts(), 'level': level, 'msg': msg})
 
 def download_task(tid, url, save_dir, browser, quality, filetype):
     tasks[tid].update({
@@ -30,37 +40,55 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
     is_pl = 'list=' in url
 
     def hook(d):
-        # Check cancel flag
         if tasks[tid].get('cancel'):
             raise Exception('Download cancelled by user')
 
         if d['status'] == 'downloading':
-            fname = os.path.splitext(os.path.basename(d.get('filename','')))[0]
-            spd  = _clean(d.get('_speed_str',''))
-            eta  = _clean(d.get('_eta_str',''))
-            pct  = _clean(d.get('_percent_str','0%'))
+            fname = os.path.splitext(os.path.basename(d.get('filename', '')))[0]
+            spd   = _clean(d.get('_speed_str', ''))
+            eta   = _clean(d.get('_eta_str', ''))
+            pct   = _clean(d.get('_percent_str', '0%'))
+            item  = tasks[tid]['item']
+            total = tasks[tid]['total']
+
             tasks[tid]['speed']        = spd
             tasks[tid]['eta']          = eta
             tasks[tid]['percent']      = pct
-            tasks[tid]['current_file'] = fname[:58]+'…' if len(fname)>58 else fname
+            tasks[tid]['current_file'] = fname[:58] + '…' if len(fname) > 58 else fname
+
             try:
-                tasks[tid]['progress'] = float(pct.replace('%','').strip() or 0)
+                tasks[tid]['progress'] = float(pct.replace('%', '').strip() or 0)
             except Exception:
                 pass
-            log(tid, 'DL', f'{pct}  {spd}  ETA {eta}  —  {fname[:46]}')
+
+            item_str = f'[{item}/{total}] ' if total > 1 else ''
+            log_update_last(tid, 'DL', f'{item_str}{pct}  {spd}  ETA {eta}  —  {fname[:40]}')
+
         elif d['status'] == 'finished':
-            fname = os.path.basename(d.get('filename',''))
-            log(tid, 'DONE', f'Saved: {fname}')
+            fname = os.path.basename(d.get('filename', ''))
+            # Increment item counter
+            tasks[tid]['item'] = tasks[tid].get('item', 0) + 1
+            item  = tasks[tid]['item']
+            total = tasks[tid]['total']
+            log(tid, 'DONE', f'[{item}/{total}] Saved: {fname}')
 
     outtmpl = os.path.join(
         save_dir,
         '%(playlist_index)02d - %(title)s.%(ext)s' if is_pl else '%(title)s.%(ext)s'
     )
     opts = {
-        'outtmpl': outtmpl, 'progress_hooks': [hook],
-        'noplaylist': not is_pl, 'quiet': True
+        'outtmpl': outtmpl,
+        'progress_hooks': [hook],
+        'noplaylist': not is_pl,
+        'quiet': True,
+        'no_warnings': False,
     }
+
+    import os as _os
+    _os.environ['PATH'] = '/opt/homebrew/bin:' + _os.environ.get('PATH', '')
+    opts['extractor_args'] = {'youtube': {'player_client': ['mweb', 'web']}}
     opts.update(get_format_opts(quality, filetype))
+
     if browser and browser != 'none':
         opts['cookiesfrombrowser'] = (browser,)
         log(tid, 'INFO', f'Loading cookies from {browser.capitalize()}')
@@ -74,17 +102,21 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
             if is_pl:
                 entries = [e for e in info.get('entries', []) if e]
                 tasks[tid]['total'] = len(entries)
-                log(tid, 'INFO', f'Playlist: "{info.get("title","")}" — {len(entries)} videos')
+                log(tid, 'INFO', f'Playlist: "{info.get("title", "")}" — {len(entries)} videos')
             else:
-                dur = info.get('duration_string') or f'{info.get("duration","?")}s'
-                log(tid, 'INFO', f'Video: "{info.get("title","")}" — {dur}')
+                dur = info.get('duration_string') or f'{info.get("duration", "?")}s'
+                log(tid, 'INFO', f'Video: "{info.get("title", "")}" — {dur}')
                 tasks[tid]['total'] = 1
+                tasks[tid]['item']  = 0  # reset so hook increments to 1 on finish
+
             log(tid, 'INFO', 'Download started…')
             ydl.download([url])
+
         tasks[tid]['status']   = 'done'
         tasks[tid]['progress'] = 100
         tasks[tid]['speed']    = ''
-        log(tid, 'SUCCESS', 'All downloads complete.')
+        log(tid, 'SUCCESS', 'All downloads complete ✅')
+
     except Exception as e:
         msg = str(e)
         if 'cancelled' in msg.lower():
@@ -95,6 +127,9 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
             log(tid, 'ERROR', msg)
 
 def start(tid, url, save_dir, browser, quality, filetype):
-    t = threading.Thread(target=download_task, args=(tid, url, save_dir, browser, quality, filetype))
+    t = threading.Thread(
+        target=download_task,
+        args=(tid, url, save_dir, browser, quality, filetype)
+    )
     t.daemon = True
     t.start()
