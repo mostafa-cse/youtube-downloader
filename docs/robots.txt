@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mostafa-cse.github.io/youtube-downloader/sitemap.xml
