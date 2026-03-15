@@ -5,12 +5,10 @@ __pycache__/
 build/
 dist/
 *.spec
-*.dmg
 *.egg-info/
 .DS_Store
 downloads/
 *.zip
-rw.*.dmg
 create_icon.py
 icon_1024.png
 YTDownloader.iconset/
