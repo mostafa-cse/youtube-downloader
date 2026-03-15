@@ -1,14 +1,9 @@
-venv/
 __pycache__/
 *.pyc
 *.pyo
+venv/
 build/
 dist/
+*.dmg
 *.spec
-*.egg-info/
 .DS_Store
-downloads/
-*.zip
-create_icon.py
-icon_1024.png
-YTDownloader.iconset/
