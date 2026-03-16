@@ -34,12 +34,48 @@ def _is_format_error(msg):
     indicators = [
         'requested format is not available',
         'no video formats found',
-        'unable to download webpage',  # can also be a transient format issue
+        'unable to download webpage',
         'format not available',
         'no media links found',
+        'nslocalizeddescription',
     ]
     m = msg.lower()
     return any(i in m for i in indicators)
+
+def _is_cookie_permission_error(msg):
+    """Return True if macOS sandbox blocked access to the browser cookie file."""
+    indicators = [
+        'operation not permitted',
+        'errno 1',
+        'cookies.binarycookies',
+        'permission denied',
+        'cookies.sqlite',
+        'lock',
+    ]
+    m = msg.lower()
+    return any(i in m for i in indicators)
+
+# Player clients to try in order — ios/android bypass many format restrictions
+PLAYER_CLIENTS_LADDER = [
+    ['ios', 'android', 'mweb', 'web'],
+    ['android', 'web'],
+    ['mweb', 'web'],
+    ['web'],
+]
+
+def _make_base_opts(outtmpl, hook, is_pl, browser, player_clients, tid):
+    """Build base ydl options for a given player_clients list."""
+    opts = {
+        'outtmpl':        outtmpl,
+        'progress_hooks': [hook],
+        'noplaylist':     not is_pl,
+        'quiet':          True,
+        'no_warnings':    False,
+        'extractor_args': {'youtube': {'player_client': player_clients}},
+    }
+    if browser and browser != 'none':
+        opts['cookiesfrombrowser'] = (browser,)
+    return opts
 
 def download_task(tid, url, save_dir, browser, quality, filetype):
     tasks[tid].update({
@@ -50,6 +86,9 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
     })
     os.makedirs(save_dir, exist_ok=True)
     is_pl = 'list=' in url
+
+    import os as _os
+    _os.environ['PATH'] = '/opt/homebrew/bin:' + _os.environ.get('PATH', '')
 
     def hook(d):
         if tasks[tid].get('cancel'):
@@ -88,50 +127,90 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
         '%(playlist_index)02d - %(title)s.%(ext)s' if is_pl else '%(title)s.%(ext)s'
     )
 
-    # Base ydl options shared across all attempts
-    base_opts = {
-        'outtmpl':        outtmpl,
-        'progress_hooks': [hook],
-        'noplaylist':     not is_pl,
-        'quiet':          True,
-        'no_warnings':    False,
-        'extractor_args': {'youtube': {'player_client': ['mweb', 'web']}},
-    }
-
-    import os as _os
-    _os.environ['PATH'] = '/opt/homebrew/bin:' + _os.environ.get('PATH', '')
-
+    log(tid, 'INFO', f'Quality: {quality.upper()}  |  Format: {filetype.upper()}  |  {"Playlist" if is_pl else "Single Video"}')
     if browser and browser != 'none':
-        base_opts['cookiesfrombrowser'] = (browser,)
         log(tid, 'INFO', f'Loading cookies from {browser.capitalize()}')
 
-    log(tid, 'INFO', f'Quality: {quality.upper()}  |  Format: {filetype.upper()}  |  {"Playlist" if is_pl else "Single Video"}')
+    # ── Resolve effective browser setting (handle sandbox permission errors) ──
+    effective_browser = browser
 
-    # ── Fetch metadata first (format-independent) ────────────────────────────
-    try:
-        with yt_dlp.YoutubeDL({**base_opts, 'format': 'best'}) as ydl:
-            log(tid, 'INFO', 'Fetching video metadata\u2026')
-            info = ydl.extract_info(url, download=False)
-            if is_pl:
-                entries = [e for e in info.get('entries', []) if e]
-                tasks[tid]['total'] = len(entries)
-                log(tid, 'INFO', f'Playlist: "{info.get("title", "")}" \u2014 {len(entries)} videos')
-            else:
-                dur = info.get('duration_string') or f'{info.get("duration", "?")}s'
-                log(tid, 'INFO', f'Video: "{info.get("title", "")}" \u2014 {dur}')
-                tasks[tid]['total'] = 1
-                tasks[tid]['item']  = 0
-    except Exception as e:
-        msg = str(e)
-        if 'cancelled' in msg.lower():
+    # ── Fetch metadata — try player_client ladder ────────────────────────────
+    info = None
+    for clients in PLAYER_CLIENTS_LADDER:
+        if tasks[tid].get('cancel'):
             tasks[tid]['status'] = 'cancelled'
             log(tid, 'ERROR', 'Download cancelled.')
-        else:
+            return
+
+        base_opts = _make_base_opts(outtmpl, hook, is_pl, effective_browser, clients, tid)
+
+        try:
+            with yt_dlp.YoutubeDL({**base_opts, 'format': 'bestvideo+bestaudio/best'}) as ydl:
+                log(tid, 'INFO', f'Fetching video metadata\u2026 (clients: {clients})')
+                info = ydl.extract_info(url, download=False)
+            break  # metadata succeeded
+
+        except Exception as e:
+            msg = str(e)
+
+            if 'cancelled' in msg.lower():
+                tasks[tid]['status'] = 'cancelled'
+                log(tid, 'ERROR', 'Download cancelled.')
+                return
+
+            # ── Cookie permission denied (macOS sandbox) ──────────────────
+            if _is_cookie_permission_error(msg) and effective_browser and effective_browser != 'none':
+                log(tid, 'WARN',
+                    f'\u26a0\ufe0f Cannot read {effective_browser.capitalize()} cookies '
+                    f'(macOS sandbox restriction). Retrying without cookies\u2026')
+                effective_browser = None  # drop cookies and retry
+                # Rebuild base_opts without browser
+                base_opts = _make_base_opts(outtmpl, hook, is_pl, None, clients, tid)
+                try:
+                    with yt_dlp.YoutubeDL({**base_opts, 'format': 'bestvideo+bestaudio/best'}) as ydl:
+                        info = ydl.extract_info(url, download=False)
+                    break
+                except Exception as e2:
+                    msg = str(e2)
+                    # fall through to next player_clients in ladder
+
+            # Format error — try next client set
+            if _is_format_error(msg):
+                log(tid, 'WARN', f'Client {clients} failed, trying next\u2026')
+                continue
+
+            # Hard error — abort
             tasks[tid]['status'] = 'error'
             log(tid, 'ERROR', f'Metadata fetch failed: {msg}')
+            return
+
+    if info is None:
+        tasks[tid]['status'] = 'error'
+        log(tid, 'ERROR', 'Could not fetch video metadata after all retries. '
+            'Try a different quality or check your internet connection.')
         return
 
-    # ── Download with fallback ladder ────────────────────────────────────────
+    if is_pl:
+        entries = [e for e in info.get('entries', []) if e]
+        tasks[tid]['total'] = len(entries)
+        log(tid, 'INFO', f'Playlist: "{info.get("title", "")}" \u2014 {len(entries)} videos')
+    else:
+        dur = info.get('duration_string') or f'{info.get("duration", "?")}s'
+        log(tid, 'INFO', f'Video: "{info.get("title", "")}" \u2014 {dur}')
+        tasks[tid]['total'] = 1
+        tasks[tid]['item']  = 0
+
+    # ── Download with format fallback ladder ─────────────────────────────────
+    # Use effective_browser (may have been set to None after cookie error)
+    best_clients = PLAYER_CLIENTS_LADDER[0]
+    base_opts = _make_base_opts(outtmpl, hook, is_pl, effective_browser, best_clients, tid)
+
+    if effective_browser != browser and browser and browser != 'none':
+        log(tid, 'WARN',
+            f'Downloading WITHOUT {browser.capitalize()} cookies due to macOS sandbox. '
+            f'Public videos will still work. For age-restricted videos, '
+            f'grant Full Disk Access to YT Downloader in System Settings \u2192 Privacy.')
+
     ladder = get_format_ladder(quality, filetype)
     last_error = None
 
@@ -148,14 +227,12 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
             log(tid, 'INFO', 'Download started\u2026')
 
         opts = {**base_opts, **fmt_opts}
-        # Reset item counter for each attempt so UI stays clean
         tasks[tid]['item'] = 0
 
         try:
             with yt_dlp.YoutubeDL(opts) as ydl:
                 ydl.download([url])
 
-            # ── Success ──────────────────────────────────────────────────────
             tasks[tid]['status']   = 'done'
             tasks[tid]['progress'] = 100
             tasks[tid]['speed']    = ''
@@ -171,20 +248,34 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
                 log(tid, 'ERROR', 'Download cancelled.')
                 return
 
+            # Cookie permission error mid-download — strip cookies and retry same format
+            if _is_cookie_permission_error(msg) and effective_browser:
+                effective_browser = None
+                base_opts = _make_base_opts(outtmpl, hook, is_pl, None, best_clients, tid)
+                opts = {**base_opts, **fmt_opts}
+                log(tid, 'WARN', 'Cookie access blocked mid-download — retrying without cookies\u2026')
+                try:
+                    with yt_dlp.YoutubeDL(opts) as ydl:
+                        ydl.download([url])
+                    tasks[tid]['status']   = 'done'
+                    tasks[tid]['progress'] = 100
+                    tasks[tid]['speed']    = ''
+                    log(tid, 'SUCCESS', 'All downloads complete \u2705')
+                    return
+                except Exception as e2:
+                    last_error = str(e2)
+
             if _is_format_error(msg):
-                # Safe to retry with next format in the ladder
-                log(tid, 'WARN', f'Format not available, trying next option\u2026')
+                log(tid, 'WARN', 'Format not available, trying next option\u2026')
                 continue
 
-            # Non-format error — don't retry
             tasks[tid]['status'] = 'error'
             log(tid, 'ERROR', msg)
             return
 
-    # All ladder options exhausted
     tasks[tid]['status'] = 'error'
     log(tid, 'ERROR',
-        f'No compatible format found for this video after {len(ladder)} attempts. '
+        f'No compatible format found after {len(ladder)} attempts. '
         f'Last error: {last_error}')
 
 def start(tid, url, save_dir, browser, quality, filetype):
