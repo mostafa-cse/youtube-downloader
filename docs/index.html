@@ -7,6 +7,7 @@
   <meta name="description" content="YT Downloader is a free, open-source macOS app to download YouTube videos in 4K, 1080p, 720p, or audio-only. No ads. No subscription. One-click install. Powered by yt-dlp." />
   <meta name="keywords" content="YouTube downloader macOS, free YouTube downloader Mac, yt-dlp GUI, download YouTube videos Mac, 4K video downloader Mac, open source YouTube downloader, Apple Silicon YouTube downloader" />
   <meta name="author" content="Mostafa Kamal" />
+  <meta name="google-site-verification" content="_cp1LdcsSAQ2najhlqNCw9HeohqyLMdF6FnbFE8AV3o" />
   <link rel="canonical" href="https://mostafa-cse.github.io/youtube-downloader/" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://mostafa-cse.github.io/youtube-downloader/" />
@@ -15,7 +16,7 @@
   <meta property="og:image" content="https://mostafa-cse.github.io/youtube-downloader/assets/logo.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="YT Downloader – Free macOS YouTube Downloader" />
-  <meta name="twitter:description" content="Download YouTube videos in 4K on macOS. Free & open-source." />
+  <meta name="twitter:description" content="Download YouTube videos in 4K on macOS. Free &amp; open-source." />
   <meta name="twitter:image" content="https://mostafa-cse.github.io/youtube-downloader/assets/logo.png" />
   <script type="application/ld+json">
   {
@@ -72,14 +73,12 @@
       line-height: 1.65;
       overflow-x: hidden;
     }
-    /* ---- NOISE TEXTURE ---- */
     body::before {
       content: '';
       position: fixed; inset: 0; z-index: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
       pointer-events: none;
     }
-    /* ---- GLOW ORBS ---- */
     .orb {
       position: fixed; border-radius: 50%; filter: blur(120px);
       opacity: 0.18; pointer-events: none; z-index: 0;
@@ -87,7 +86,6 @@
     .orb1 { width: 600px; height: 600px; background: var(--accent); top: -200px; left: -100px; }
     .orb2 { width: 500px; height: 500px; background: var(--accent2); bottom: 10%; right: -150px; }
     .orb3 { width: 400px; height: 400px; background: var(--accent3); top: 40%; left: 30%; }
-    /* ---- NAV ---- */
     nav {
       position: sticky; top: 0; z-index: 200;
       background: rgba(6,6,15,0.6);
@@ -98,13 +96,9 @@
       display: flex; align-items: center; justify-content: space-between;
       height: 66px;
     }
-    .nav-brand {
-      display: flex; align-items: center; gap: 10px;
-      text-decoration: none;
-    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
     .nav-brand img {
-      width: 34px; height: 34px; border-radius: 9px;
-      object-fit: cover;
+      width: 34px; height: 34px; border-radius: 9px; object-fit: cover;
       box-shadow: 0 0 0 1px var(--glass-border), 0 4px 16px rgba(59,130,246,.3);
     }
     .nav-brand span {
@@ -114,37 +108,27 @@
       letter-spacing: -.01em;
     }
     .nav-links { display: flex; gap: 24px; list-style: none; }
-    .nav-links a {
-      color: var(--muted); text-decoration: none;
-      font-size: .88rem; font-weight: 500;
-      transition: color .2s;
-    }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: .88rem; font-weight: 500; transition: color .2s; }
     .nav-links a:hover { color: #fff; }
     .nav-cta {
       background: linear-gradient(135deg, var(--accent), #2563eb);
       color: #fff; padding: 8px 22px; border-radius: 10px;
       font-size: .88rem; font-weight: 700; text-decoration: none;
       box-shadow: 0 4px 18px rgba(59,130,246,.35);
-      transition: opacity .2s, transform .2s;
-      white-space: nowrap;
+      transition: opacity .2s, transform .2s; white-space: nowrap;
     }
     .nav-cta:hover { opacity: .88; transform: translateY(-1px); }
-    /* ---- HERO ---- */
     .hero {
-      position: relative; z-index: 1;
-      min-height: 94vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
+      position: relative; z-index: 1; min-height: 94vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
       text-align: center; padding: 100px 6% 80px;
     }
     .hero-pill {
       display: inline-flex; align-items: center; gap: 8px;
       background: var(--glass); border: 1px solid var(--glass-border);
-      backdrop-filter: blur(12px);
-      color: #94a3b8; border-radius: 100px;
+      backdrop-filter: blur(12px); color: #94a3b8; border-radius: 100px;
       padding: 6px 18px; font-size: .78rem; font-weight: 600;
-      letter-spacing: .06em; text-transform: uppercase;
-      margin-bottom: 28px;
+      letter-spacing: .06em; text-transform: uppercase; margin-bottom: 28px;
     }
     .hero-pill span { color: var(--green); }
     .hero h1 {
@@ -154,11 +138,7 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       max-width: 860px; margin-bottom: 22px;
     }
-    .hero-sub {
-      font-size: clamp(.95rem, 2vw, 1.2rem);
-      color: var(--muted); max-width: 580px; margin-bottom: 44px;
-      line-height: 1.75;
-    }
+    .hero-sub { font-size: clamp(.95rem, 2vw, 1.2rem); color: var(--muted); max-width: 580px; margin-bottom: 44px; line-height: 1.75; }
     .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-bottom: 48px; }
     .btn-primary {
       display: inline-flex; align-items: center; gap: 9px;
@@ -172,33 +152,20 @@
     .btn-glass {
       display: inline-flex; align-items: center; gap: 9px;
       background: var(--glass); border: 1px solid var(--glass-border);
-      backdrop-filter: blur(12px);
-      color: var(--text); padding: 15px 30px; border-radius: 14px;
+      backdrop-filter: blur(12px); color: var(--text); padding: 15px 30px; border-radius: 14px;
       font-size: 1rem; font-weight: 600; text-decoration: none;
       transition: background .2s, transform .2s;
     }
     .btn-glass:hover { background: var(--glass-shine); transform: translateY(-2px); }
-    .hero-trust {
-      display: flex; gap: 24px; flex-wrap: wrap; justify-content: center;
-    }
-    .hero-trust-item {
-      display: flex; align-items: center; gap: 7px;
-      font-size: .82rem; color: var(--muted);
-    }
+    .hero-trust { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
+    .hero-trust-item { display: flex; align-items: center; gap: 7px; font-size: .82rem; color: var(--muted); }
     .hero-trust-item svg { color: var(--green); flex-shrink: 0; }
-    /* ---- STATS STRIP ---- */
     .stats-strip {
-      position: relative; z-index: 1;
-      background: var(--glass);
-      border-top: 1px solid var(--glass-border);
-      border-bottom: 1px solid var(--glass-border);
-      backdrop-filter: blur(16px);
-      display: grid; grid-template-columns: repeat(5, 1fr);
+      position: relative; z-index: 1; background: var(--glass);
+      border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border);
+      backdrop-filter: blur(16px); display: grid; grid-template-columns: repeat(5, 1fr);
     }
-    .stat-item {
-      text-align: center; padding: 32px 16px;
-      border-right: 1px solid var(--glass-border);
-    }
+    .stat-item { text-align: center; padding: 32px 16px; border-right: 1px solid var(--glass-border); }
     .stat-item:last-child { border-right: none; }
     .stat-num {
       font-size: 2rem; font-weight: 900; line-height: 1;
@@ -206,48 +173,23 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
     .stat-label { color: var(--muted); font-size: .78rem; margin-top: 5px; font-weight: 500; letter-spacing: .03em; }
-    /* ---- SECTIONS ---- */
     section { position: relative; z-index: 1; padding: 100px 6%; }
-    .sec-tag {
-      display: inline-block;
-      color: var(--accent); font-size: .72rem; font-weight: 700;
-      letter-spacing: .14em; text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-    .sec-title {
-      font-size: clamp(1.9rem, 4vw, 2.8rem);
-      font-weight: 850; letter-spacing: -.025em; margin-bottom: 14px;
-      line-height: 1.15;
-    }
+    .sec-tag { display: inline-block; color: var(--accent); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 10px; }
+    .sec-title { font-size: clamp(1.9rem, 4vw, 2.8rem); font-weight: 850; letter-spacing: -.025em; margin-bottom: 14px; line-height: 1.15; }
     .sec-sub { color: var(--muted); font-size: 1rem; max-width: 520px; margin-bottom: 56px; line-height: 1.75; }
-    /* ---- GLASS CARD ---- */
     .glass-card {
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius);
-      backdrop-filter: blur(20px) saturate(1.5);
-      -webkit-backdrop-filter: blur(20px) saturate(1.5);
+      background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--radius);
+      backdrop-filter: blur(20px) saturate(1.5); -webkit-backdrop-filter: blur(20px) saturate(1.5);
       box-shadow: 0 4px 24px rgba(0,0,0,.25), inset 0 1px 0 var(--glass-shine);
       transition: transform .25s, box-shadow .25s, border-color .25s;
     }
-    .glass-card:hover {
-      transform: translateY(-5px);
-      border-color: rgba(59,130,246,.35);
-      box-shadow: 0 12px 40px rgba(0,0,0,.35), inset 0 1px 0 var(--glass-shine);
-    }
-    /* ---- FEATURES ---- */
+    .glass-card:hover { transform: translateY(-5px); border-color: rgba(59,130,246,.35); box-shadow: 0 12px 40px rgba(0,0,0,.35), inset 0 1px 0 var(--glass-shine); }
     .features-section { background: transparent; }
     .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px; }
     .feat-card { padding: 30px; }
-    .feat-icon {
-      width: 50px; height: 50px; border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem; margin-bottom: 18px;
-      border: 1px solid var(--glass-border);
-    }
+    .feat-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 18px; border: 1px solid var(--glass-border); }
     .feat-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -.01em; }
     .feat-card p { color: var(--muted); font-size: .88rem; line-height: 1.7; }
-    /* ---- HOW IT WORKS ---- */
     .how-section { border-top: 1px solid var(--glass-border); background: rgba(255,255,255,.012); }
     .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 20px; }
     .step-card { padding: 36px 26px; text-align: center; }
@@ -260,32 +202,17 @@
     }
     .step-card h3 { font-size: .98rem; font-weight: 700; margin-bottom: 8px; }
     .step-card p { color: var(--muted); font-size: .85rem; line-height: 1.7; }
-    /* ---- DOWNLOAD ---- */
     .dl-section {
       background: linear-gradient(145deg, rgba(59,130,246,.08) 0%, rgba(139,92,246,.06) 100%);
-      border-top: 1px solid var(--glass-border);
-      border-bottom: 1px solid var(--glass-border);
-      text-align: center;
+      border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); text-align: center;
     }
-    .dl-card {
-      display: inline-flex; flex-direction: column; align-items: center;
-      gap: 22px; padding: 48px 60px;
-      max-width: 520px; width: 100%;
-    }
-    .version-tag {
-      background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.28);
-      color: var(--green); border-radius: 100px;
-      padding: 5px 16px; font-size: .78rem; font-weight: 700; letter-spacing: .04em;
-    }
+    .dl-card { display: inline-flex; flex-direction: column; align-items: center; gap: 22px; padding: 48px 60px; max-width: 520px; width: 100%; }
+    .version-tag { background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.28); color: var(--green); border-radius: 100px; padding: 5px 16px; font-size: .78rem; font-weight: 700; letter-spacing: .04em; }
     .dl-card h2 { font-size: 1.9rem; font-weight: 800; letter-spacing: -.02em; }
     .dl-card > p { color: var(--muted); font-size: .9rem; }
     .req-list { width: 100%; list-style: none; }
-    .req-list li {
-      display: flex; align-items: center; gap: 10px;
-      color: var(--muted); font-size: .85rem; padding: 5px 0;
-    }
+    .req-list li { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .85rem; padding: 5px 0; }
     .req-list li::before { content: '›'; color: var(--accent); font-weight: 700; font-size: 1.1rem; }
-    /* ---- FEEDBACK ---- */
     .feedback-section {}
     .feedback-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: start; }
     .form-card { padding: 40px; }
@@ -293,176 +220,74 @@
     .form-card > p { color: var(--muted); font-size: .88rem; margin-bottom: 26px; line-height: 1.6; }
     .form-group { margin-bottom: 16px; }
     .form-group label { display: block; font-size: .8rem; font-weight: 650; color: #94a3b8; margin-bottom: 7px; letter-spacing: .02em; }
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-      width: 100%;
-      background: rgba(255,255,255,.05);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-sm);
-      color: var(--text); padding: 11px 14px;
-      font-size: .9rem; outline: none;
-      transition: border-color .2s, background .2s;
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; background: rgba(255,255,255,.05); border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm); color: var(--text); padding: 11px 14px;
+      font-size: .9rem; outline: none; transition: border-color .2s, background .2s;
       resize: vertical; font-family: inherit;
     }
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus { border-color: var(--accent); background: rgba(59,130,246,.06); }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent); background: rgba(59,130,246,.06); }
     .form-group select option { background: #0f0f1a; }
     .stars-row { display: flex; gap: 8px; }
-    .star {
-      background: none; border: 1px solid var(--glass-border);
-      border-radius: 8px; color: var(--muted); cursor: pointer;
-      width: 40px; height: 40px; font-size: 1.05rem;
-      transition: all .2s;
-    }
+    .star { background: none; border: 1px solid var(--glass-border); border-radius: 8px; color: var(--muted); cursor: pointer; width: 40px; height: 40px; font-size: 1.05rem; transition: all .2s; }
     .star:hover, .star.on { background: rgba(245,158,11,.14); border-color: var(--amber); color: var(--amber); }
-    .btn-send {
-      width: 100%;
-      background: linear-gradient(135deg, var(--accent), #2563eb);
-      color: #fff; border: none; border-radius: var(--radius-sm);
-      padding: 13px; font-size: .95rem; font-weight: 700;
-      cursor: pointer; transition: opacity .2s;
-      box-shadow: 0 4px 18px rgba(59,130,246,.3);
-    }
+    .btn-send { width: 100%; background: linear-gradient(135deg, var(--accent), #2563eb); color: #fff; border: none; border-radius: var(--radius-sm); padding: 13px; font-size: .95rem; font-weight: 700; cursor: pointer; transition: opacity .2s; box-shadow: 0 4px 18px rgba(59,130,246,.3); }
     .btn-send:hover { opacity: .85; }
-    .ok-msg {
-      display: none; margin-top: 12px;
-      background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.25);
-      border-radius: var(--radius-sm); padding: 13px;
-      color: var(--green); font-size: .88rem; text-align: center;
-    }
-    /* ---- COFFEE ---- */
-    .coffee-card {
-      background: linear-gradient(145deg, rgba(245,158,11,.08) 0%, rgba(239,68,68,.06) 100%);
-      border: 1px solid rgba(245,158,11,.22);
-      border-radius: var(--radius); padding: 36px;
-      text-align: center;
-    }
+    .ok-msg { display: none; margin-top: 12px; background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.25); border-radius: var(--radius-sm); padding: 13px; color: var(--green); font-size: .88rem; text-align: center; }
+    .coffee-card { background: linear-gradient(145deg, rgba(245,158,11,.08) 0%, rgba(239,68,68,.06) 100%); border: 1px solid rgba(245,158,11,.22); border-radius: var(--radius); padding: 36px; text-align: center; }
     .coffee-icon { font-size: 2.8rem; margin-bottom: 14px; }
     .coffee-card h3 { font-size: 1.2rem; font-weight: 750; margin-bottom: 8px; }
     .coffee-card p { color: var(--muted); font-size: .88rem; margin-bottom: 22px; line-height: 1.65; }
     .coffee-amts { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
-    .coffee-btn {
-      background: rgba(255,255,255,.05); border: 1px solid var(--glass-border);
-      border-radius: 9px; padding: 8px 16px;
-      color: var(--text); font-size: .88rem; cursor: pointer; transition: all .2s;
-    }
+    .coffee-btn { background: rgba(255,255,255,.05); border: 1px solid var(--glass-border); border-radius: 9px; padding: 8px 16px; color: var(--text); font-size: .88rem; cursor: pointer; transition: all .2s; }
     .coffee-btn:hover, .coffee-btn.picked { background: rgba(245,158,11,.15); border-color: var(--amber); color: var(--amber); }
-    .btn-coffee {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: linear-gradient(135deg, #f59e0b, #ef4444);
-      color: #fff; padding: 13px 30px; border-radius: var(--radius-sm);
-      font-size: .95rem; font-weight: 700; text-decoration: none;
-      box-shadow: 0 6px 22px rgba(245,158,11,.32);
-      transition: transform .2s, box-shadow .2s;
-    }
+    .btn-coffee { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; padding: 13px 30px; border-radius: var(--radius-sm); font-size: .95rem; font-weight: 700; text-decoration: none; box-shadow: 0 6px 22px rgba(245,158,11,.32); transition: transform .2s, box-shadow .2s; }
     .btn-coffee:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(245,158,11,.45); }
-    /* ---- SHARE ---- */
-    .share-card {
-      background: var(--glass); border: 1px solid var(--glass-border);
-      border-radius: var(--radius); padding: 28px;
-      margin-top: 20px; text-align: center;
-      backdrop-filter: blur(14px);
-    }
+    .share-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 28px; margin-top: 20px; text-align: center; backdrop-filter: blur(14px); }
     .share-card h3 { font-size: .98rem; font-weight: 700; margin-bottom: 8px; }
     .share-card p { color: var(--muted); font-size: .84rem; margin-bottom: 18px; }
     .share-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-    .share-btn {
-      padding: 8px 18px; border-radius: 9px;
-      text-decoration: none; font-size: .82rem; font-weight: 650;
-      transition: opacity .2s;
-    }
+    .share-btn { padding: 8px 18px; border-radius: 9px; text-decoration: none; font-size: .82rem; font-weight: 650; transition: opacity .2s; }
     .share-btn:hover { opacity: .78; }
-    /* ---- FAQ ---- */
     .faq-section { border-top: 1px solid var(--glass-border); background: rgba(255,255,255,.012); }
     .faq-wrap { max-width: 760px; }
-    .faq-item {
-      background: var(--glass); border: 1px solid var(--glass-border);
-      border-radius: var(--radius-sm); margin-bottom: 10px; overflow: hidden;
-      backdrop-filter: blur(14px);
-    }
-    .faq-q {
-      padding: 18px 22px; font-weight: 600; font-size: .93rem;
-      cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-      user-select: none; transition: background .2s;
-    }
+    .faq-item { background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); margin-bottom: 10px; overflow: hidden; backdrop-filter: blur(14px); }
+    .faq-q { padding: 18px 22px; font-weight: 600; font-size: .93rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; transition: background .2s; }
     .faq-q:hover { background: rgba(255,255,255,.03); }
     .faq-arrow { color: var(--accent); font-size: 1.15rem; transition: transform .3s; }
     .faq-body { max-height: 0; overflow: hidden; transition: max-height .35s ease; }
     .faq-body-inner { padding: 0 22px 18px; color: var(--muted); font-size: .88rem; line-height: 1.75; }
     .faq-item.open .faq-arrow { transform: rotate(45deg); }
     .faq-item.open .faq-body { max-height: 300px; }
-    /* ---- CONTACT ---- */
     .contact-section { border-top: 1px solid var(--glass-border); }
     .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
     .contact-left h2 { font-size: clamp(1.8rem,3.5vw,2.4rem); font-weight: 800; letter-spacing: -.025em; margin-bottom: 14px; }
     .contact-left p { color: var(--muted); font-size: .95rem; line-height: 1.75; margin-bottom: 28px; }
     .contact-links { display: flex; flex-direction: column; gap: 12px; }
-    .contact-link {
-      display: flex; align-items: center; gap: 14px;
-      background: var(--glass); border: 1px solid var(--glass-border);
-      border-radius: var(--radius-sm); padding: 14px 18px;
-      text-decoration: none; color: var(--text);
-      backdrop-filter: blur(12px);
-      transition: border-color .2s, transform .2s;
-    }
+    .contact-link { display: flex; align-items: center; gap: 14px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); padding: 14px 18px; text-decoration: none; color: var(--text); backdrop-filter: blur(12px); transition: border-color .2s, transform .2s; }
     .contact-link:hover { border-color: rgba(59,130,246,.4); transform: translateX(4px); }
-    .contact-link-icon {
-      width: 38px; height: 38px; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; flex-shrink: 0;
-    }
+    .contact-link-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
     .contact-link-info { flex: 1; }
     .contact-link-label { font-size: .75rem; color: var(--muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
     .contact-link-val { font-size: .92rem; font-weight: 650; color: #fff; margin-top: 1px; }
     .contact-link-arrow { color: var(--muted); font-size: .9rem; }
-    /* ---- FOOTER ---- */
-    footer {
-      position: relative; z-index: 1;
-      background: rgba(6,6,15,0.85);
-      border-top: 1px solid var(--glass-border);
-      backdrop-filter: blur(20px);
-      padding: 56px 6% 32px;
-    }
+    footer { position: relative; z-index: 1; background: rgba(6,6,15,0.85); border-top: 1px solid var(--glass-border); backdrop-filter: blur(20px); padding: 56px 6% 32px; }
     .footer-grid { display: grid; grid-template-columns: 2.2fr 1fr 1fr; gap: 56px; margin-bottom: 48px; }
-    .footer-brand-name {
-      display: flex; align-items: center; gap: 10px;
-      text-decoration: none; margin-bottom: 14px;
-    }
+    .footer-brand-name { display: flex; align-items: center; gap: 10px; text-decoration: none; margin-bottom: 14px; }
     .footer-brand-name img { width: 30px; height: 30px; border-radius: 8px; }
-    .footer-brand-name span {
-      font-size: 1rem; font-weight: 750;
-      background: linear-gradient(130deg, #fff 0%, #94a3b8 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
+    .footer-brand-name span { font-size: 1rem; font-weight: 750; background: linear-gradient(130deg, #fff 0%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .footer-tagline { color: var(--muted); font-size: .85rem; line-height: 1.75; max-width: 290px; }
     footer h4 { font-size: .75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 16px; }
     footer ul { list-style: none; }
     footer ul li { margin-bottom: 9px; }
     footer ul a { color: var(--muted); text-decoration: none; font-size: .86rem; transition: color .2s; }
     footer ul a:hover { color: #fff; }
-    .footer-bottom {
-      border-top: 1px solid var(--glass-border);
-      padding-top: 22px;
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
-    }
+    .footer-bottom { border-top: 1px solid var(--glass-border); padding-top: 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
     .footer-bottom p { color: var(--muted); font-size: .8rem; }
     .footer-bottom a { color: var(--accent); text-decoration: none; }
-    /* ---- RESPONSIVE ---- */
-    @media (max-width: 900px) {
-      .stats-strip { grid-template-columns: repeat(3, 1fr); }
-      .feedback-grid, .contact-grid, .footer-grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 680px) {
-      .nav-links { display: none; }
-      .stats-strip { grid-template-columns: repeat(2, 1fr); }
-      .stat-item:last-child { border-right: 1px solid var(--glass-border); }
-    }
-    @media (max-width: 480px) {
-      .hero-actions { flex-direction: column; align-items: stretch; }
-      .dl-card { padding: 36px 24px; }
-    }
+    @media (max-width: 900px) { .stats-strip { grid-template-columns: repeat(3, 1fr); } .feedback-grid, .contact-grid, .footer-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 680px) { .nav-links { display: none; } .stats-strip { grid-template-columns: repeat(2, 1fr); } .stat-item:last-child { border-right: 1px solid var(--glass-border); } }
+    @media (max-width: 480px) { .hero-actions { flex-direction: column; align-items: stretch; } .dl-card { padding: 36px 24px; } }
   </style>
 </head>
 <body>
@@ -470,7 +295,6 @@
   <div class="orb orb2"></div>
   <div class="orb orb3"></div>
 
-  <!-- NAV -->
   <nav>
     <a class="nav-brand" href="#">
       <img src="assets/logo.png" alt="YT Downloader logo" />
@@ -487,11 +311,9 @@
     <a class="nav-cta" href="https://github.com/mostafa-cse/youtube-downloader/releases/latest" target="_blank" rel="noopener">Download Free</a>
   </nav>
 
-  <!-- HERO -->
   <header class="hero">
     <div class="hero-pill"><span>NEW</span> Version 1.4.0 Released</div>
-    <h1>The Cleanest YouTube
-Downloader for macOS</h1>
+    <h1>The Cleanest YouTube Downloader for macOS</h1>
     <p class="hero-sub">Download 4K, 1080p, or audio-only from YouTube and 1000+ sites — free, open-source, no ads, no subscriptions. Powered by yt-dlp.</p>
     <div class="hero-actions">
       <a class="btn-primary" href="https://github.com/mostafa-cse/youtube-downloader/releases/latest" target="_blank" rel="noopener">
@@ -512,7 +334,6 @@ Downloader for macOS</h1>
     </div>
   </header>
 
-  <!-- STATS -->
   <div class="stats-strip">
     <div class="stat-item"><div class="stat-num">1000+</div><div class="stat-label">Supported Sites</div></div>
     <div class="stat-item"><div class="stat-num">8K</div><div class="stat-label">Max Quality</div></div>
@@ -521,108 +342,71 @@ Downloader for macOS</h1>
     <div class="stat-item"><div class="stat-num">$0</div><div class="stat-label">Cost Forever</div></div>
   </div>
 
-  <!-- FEATURES -->
   <section id="features" class="features-section">
     <div class="sec-tag">Features</div>
     <h2 class="sec-title">Everything You Need to Download</h2>
     <p class="sec-sub">Professional-grade tools without the price tag. Built for macOS power users who demand reliability and speed.</p>
     <div class="features-grid">
       <div class="glass-card feat-card">
-        <div class="feat-icon" style="background:rgba(59,130,246,.12)">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-        </div>
+        <div class="feat-icon" style="background:rgba(59,130,246,.12)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
         <h3>4K &amp; 8K Video Download</h3>
         <p>Download at the highest available resolution, up to 8K. Video and audio streams merged seamlessly via FFmpeg.</p>
       </div>
       <div class="glass-card feat-card">
-        <div class="feat-icon" style="background:rgba(16,185,129,.12)">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-        </div>
+        <div class="feat-icon" style="background:rgba(16,185,129,.12)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
         <h3>Audio-Only Extraction</h3>
         <p>Extract high-quality M4A or MP3 audio from any video. Perfect for music, lectures, and podcasts.</p>
       </div>
       <div class="glass-card feat-card">
-        <div class="feat-icon" style="background:rgba(139,92,246,.12)">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        </div>
+        <div class="feat-icon" style="background:rgba(139,92,246,.12)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
         <h3>Browser Cookie Auth</h3>
         <p>Auto-extracts login cookies from Safari, Chrome, Firefox, or Arc. Access age-restricted content with no manual steps.</p>
       </div>
       <div class="glass-card feat-card">
-        <div class="feat-icon" style="background:rgba(245,158,11,.12)">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        </div>
+        <div class="feat-icon" style="background:rgba(245,158,11,.12)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
         <h3>Live Download Progress</h3>
         <p>Real-time progress bar, speed, and ETA with live terminal output — you always know what's happening.</p>
       </div>
       <div class="glass-card feat-card">
-        <div class="feat-icon" style="background:rgba(239,68,68,.12)">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-        </div>
+        <div class="feat-icon" style="background:rgba(239,68,68,.12)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
         <h3>Playlist &amp; Channel Support</h3>
         <p>Download entire playlists or channels in one click. Files are automatically organized with index numbers.</p>
       </div>
       <div class="glass-card feat-card">
-        <div class="feat-icon" style="background:rgba(6,182,212,.12)">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-        </div>
+        <div class="feat-icon" style="background:rgba(6,182,212,.12)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
         <h3>Native Folder Picker</h3>
         <p>Choose any destination via macOS native Finder dialog. Your folder preference persists across sessions.</p>
       </div>
       <div class="glass-card feat-card">
-        <div class="feat-icon" style="background:rgba(16,185,129,.12)">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        </div>
+        <div class="feat-icon" style="background:rgba(16,185,129,.12)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
         <h3>Format Fallback Engine</h3>
         <p>When YouTube changes its API, the app automatically retries alternative format chains — 99% success rate.</p>
       </div>
       <div class="glass-card feat-card">
-        <div class="feat-icon" style="background:rgba(59,130,246,.12)">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-        </div>
+        <div class="feat-icon" style="background:rgba(59,130,246,.12)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
         <h3>Cancel &amp; Clear History</h3>
         <p>Cancel any download instantly. Clear history from the UI without deleting files from your disk.</p>
       </div>
       <div class="glass-card feat-card">
-        <div class="feat-icon" style="background:rgba(139,92,246,.12)">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        </div>
+        <div class="feat-icon" style="background:rgba(139,92,246,.12)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
         <h3>100% Private</h3>
         <p>Zero analytics, zero telemetry. Everything runs locally on your Mac. Nothing ever leaves your device.</p>
       </div>
     </div>
   </section>
 
-  <!-- HOW IT WORKS -->
   <section id="how" class="how-section">
     <div class="sec-tag">How It Works</div>
     <h2 class="sec-title">Up and Running in Seconds</h2>
     <p class="sec-sub">No configuration needed. Paste, pick your quality, and download.</p>
     <div class="steps-grid">
-      <div class="glass-card step-card">
-        <div class="step-num">1</div>
-        <h3>Paste Your URL</h3>
-        <p>Copy any YouTube or supported site URL. Single videos, full playlists, and entire channels all work.</p>
-      </div>
-      <div class="glass-card step-card">
-        <div class="step-num">2</div>
-        <h3>Choose Quality</h3>
-        <p>Select Best, 720p, or Audio-Only. Pick MP4 or M4A/MP3 output. Optionally choose a browser for cookie auth.</p>
-      </div>
-      <div class="glass-card step-card">
-        <div class="step-num">3</div>
-        <h3>Click Download</h3>
-        <p>Hit Download Now and watch the live progress bar. Files appear in your chosen folder when complete.</p>
-      </div>
-      <div class="glass-card step-card">
-        <div class="step-num">4</div>
-        <h3>Open &amp; Enjoy</h3>
-        <p>Click Open on any file to launch it directly in QuickTime, Music, or your preferred player.</p>
-      </div>
+      <div class="glass-card step-card"><div class="step-num">1</div><h3>Paste Your URL</h3><p>Copy any YouTube or supported site URL. Single videos, full playlists, and entire channels all work.</p></div>
+      <div class="glass-card step-card"><div class="step-num">2</div><h3>Choose Quality</h3><p>Select Best, 720p, or Audio-Only. Pick MP4 or M4A/MP3 output. Optionally choose a browser for cookie auth.</p></div>
+      <div class="glass-card step-card"><div class="step-num">3</div><h3>Click Download</h3><p>Hit Download Now and watch the live progress bar. Files appear in your chosen folder when complete.</p></div>
+      <div class="glass-card step-card"><div class="step-num">4</div><h3>Open &amp; Enjoy</h3><p>Click Open on any file to launch it directly in QuickTime, Music, or your preferred player.</p></div>
     </div>
   </section>
 
-  <!-- DOWNLOAD -->
   <section id="download" class="dl-section">
     <div class="sec-tag" style="display:block;text-align:center">Download</div>
     <h2 class="sec-title" style="text-align:center">Get YT Downloader — Free</h2>
@@ -647,25 +431,17 @@ Downloader for macOS</h1>
     </div>
   </section>
 
-  <!-- FEEDBACK -->
   <section id="feedback" class="feedback-section">
     <div class="sec-tag">Feedback</div>
     <h2 class="sec-title">Share Your Experience</h2>
     <p class="sec-sub">Your feedback shapes every update. Tell me what you love or what can be improved.</p>
     <div class="feedback-grid">
-      <!-- Form -->
       <div class="glass-card form-card">
         <h3>Leave a Review</h3>
         <p>Takes under 60 seconds. Every response is read personally.</p>
         <form id="feedbackForm" onsubmit="sendFeedback(event)">
-          <div class="form-group">
-            <label>NAME (optional)</label>
-            <input type="text" placeholder="Your name" />
-          </div>
-          <div class="form-group">
-            <label>EMAIL (optional)</label>
-            <input type="email" placeholder="you@example.com" />
-          </div>
+          <div class="form-group"><label>NAME (optional)</label><input type="text" placeholder="Your name" /></div>
+          <div class="form-group"><label>EMAIL (optional)</label><input type="email" placeholder="you@example.com" /></div>
           <div class="form-group">
             <label>RATING</label>
             <div class="stars-row" id="starsRow">
@@ -686,15 +462,11 @@ Downloader for macOS</h1>
               <option>Performance Issue</option>
             </select>
           </div>
-          <div class="form-group">
-            <label>MESSAGE *</label>
-            <textarea rows="4" placeholder="What you think, what broke, or what you'd love next…" required></textarea>
-          </div>
+          <div class="form-group"><label>MESSAGE *</label><textarea rows="4" placeholder="What you think, what broke, or what you’d love next…" required></textarea></div>
           <button type="submit" class="btn-send">Send Feedback</button>
           <div class="ok-msg" id="okMsg">Thank you — your feedback has been received.</div>
         </form>
       </div>
-      <!-- Right column -->
       <div>
         <div class="coffee-card">
           <div class="coffee-icon">&#9749;</div>
@@ -721,44 +493,21 @@ Downloader for macOS</h1>
     </div>
   </section>
 
-  <!-- FAQ -->
   <section id="faq" class="faq-section">
     <div class="sec-tag">FAQ</div>
     <h2 class="sec-title">Frequently Asked Questions</h2>
     <p class="sec-sub" style="margin-bottom:36px">Everything you need to know before downloading.</p>
     <div class="faq-wrap">
-      <div class="faq-item">
-        <div class="faq-q" onclick="faq(this)">Is YT Downloader really free? <span class="faq-arrow">+</span></div>
-        <div class="faq-body"><div class="faq-body-inner">Yes. 100% free and open-source under the MIT license. No trials, no paywalls, no hidden fees — ever.</div></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="faq(this)">Does it work on Apple Silicon Macs? <span class="faq-arrow">+</span></div>
-        <div class="faq-body"><div class="faq-body-inner">Yes. The app is compiled as a native arm64 binary, optimized for M1/M2/M3/M4. It also runs on Intel Macs.</div></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="faq(this)">How do I download age-restricted videos? <span class="faq-arrow">+</span></div>
-        <div class="faq-body"><div class="faq-body-inner">Select your logged-in browser (Safari, Chrome, Firefox, or Arc) in the app. Cookies are extracted automatically — no manual export needed.</div></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="faq(this)">Why does macOS say "unidentified developer"? <span class="faq-arrow">+</span></div>
-        <div class="faq-body"><div class="faq-body-inner">The app is not yet notarized (planned for v2.0). Right-click the app → "Open" → "Open" in the dialog. You only need to do this once.</div></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="faq(this)">Can I download entire YouTube playlists? <span class="faq-arrow">+</span></div>
-        <div class="faq-body"><div class="faq-body-inner">Yes. Paste a playlist URL and the app downloads all videos sequentially, organized with index numbers automatically.</div></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="faq(this)">What sites besides YouTube are supported? <span class="faq-arrow">+</span></div>
-        <div class="faq-body"><div class="faq-body-inner">Over 1000 sites including Vimeo, TikTok, Instagram, Facebook, Twitter/X, Reddit, Twitch, Coursera, Udemy, and many more.</div></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="faq(this)">Is my data safe? <span class="faq-arrow">+</span></div>
-        <div class="faq-body"><div class="faq-body-inner">Absolutely. YT Downloader has zero telemetry, zero analytics, and zero crash reporting. Everything stays on your device.</div></div>
-      </div>
+      <div class="faq-item"><div class="faq-q" onclick="faq(this)">Is YT Downloader really free? <span class="faq-arrow">+</span></div><div class="faq-body"><div class="faq-body-inner">Yes. 100% free and open-source under the MIT license. No trials, no paywalls, no hidden fees — ever.</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="faq(this)">Does it work on Apple Silicon Macs? <span class="faq-arrow">+</span></div><div class="faq-body"><div class="faq-body-inner">Yes. The app is compiled as a native arm64 binary, optimized for M1/M2/M3/M4. It also runs on Intel Macs.</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="faq(this)">How do I download age-restricted videos? <span class="faq-arrow">+</span></div><div class="faq-body"><div class="faq-body-inner">Select your logged-in browser (Safari, Chrome, Firefox, or Arc) in the app. Cookies are extracted automatically — no manual export needed.</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="faq(this)">Why does macOS say &quot;unidentified developer&quot;? <span class="faq-arrow">+</span></div><div class="faq-body"><div class="faq-body-inner">The app is not yet notarized (planned for v2.0). Right-click the app → &quot;Open&quot; → &quot;Open&quot; in the dialog. You only need to do this once.</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="faq(this)">Can I download entire YouTube playlists? <span class="faq-arrow">+</span></div><div class="faq-body"><div class="faq-body-inner">Yes. Paste a playlist URL and the app downloads all videos sequentially, organized with index numbers automatically.</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="faq(this)">What sites besides YouTube are supported? <span class="faq-arrow">+</span></div><div class="faq-body"><div class="faq-body-inner">Over 1000 sites including Vimeo, TikTok, Instagram, Facebook, Twitter/X, Reddit, Twitch, Coursera, Udemy, and many more.</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="faq(this)">Is my data safe? <span class="faq-arrow">+</span></div><div class="faq-body"><div class="faq-body-inner">Absolutely. YT Downloader has zero telemetry, zero analytics, and zero crash reporting. Everything stays on your device.</div></div></div>
     </div>
   </section>
 
-  <!-- CONTACT -->
   <section id="contact" class="contact-section">
     <div class="contact-grid">
       <div class="contact-left">
@@ -767,73 +516,39 @@ Downloader for macOS</h1>
         <p>Have a question, found a bug, or want to collaborate? Reach out through any of the channels below. I also compete on Codeforces and Codechef — feel free to connect.</p>
       </div>
       <div class="contact-links">
-        <!-- GitHub -->
         <a class="contact-link" href="https://github.com/mostafa-cse" target="_blank" rel="noopener">
-          <div class="contact-link-icon" style="background:rgba(255,255,255,.07)">
-            <svg height="18" viewBox="0 0 16 16" fill="#fff"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-          </div>
-          <div class="contact-link-info">
-            <div class="contact-link-label">GitHub</div>
-            <div class="contact-link-val">github.com/mostafa-cse</div>
-          </div>
+          <div class="contact-link-icon" style="background:rgba(255,255,255,.07)"><svg height="18" viewBox="0 0 16 16" fill="#fff"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></div>
+          <div class="contact-link-info"><div class="contact-link-label">GitHub</div><div class="contact-link-val">github.com/mostafa-cse</div></div>
           <span class="contact-link-arrow">&rarr;</span>
         </a>
-        <!-- LinkedIn -->
         <a class="contact-link" href="https://www.linkedin.com/in/mostafa-cse" target="_blank" rel="noopener">
-          <div class="contact-link-icon" style="background:rgba(10,102,194,.18)">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="#0a66c2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-          </div>
-          <div class="contact-link-info">
-            <div class="contact-link-label">LinkedIn</div>
-            <div class="contact-link-val">linkedin.com/in/mostafa-cse</div>
-          </div>
+          <div class="contact-link-icon" style="background:rgba(10,102,194,.18)"><svg width="18" height="18" viewBox="0 0 24 24" fill="#0a66c2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></div>
+          <div class="contact-link-info"><div class="contact-link-label">LinkedIn</div><div class="contact-link-val">linkedin.com/in/mostafa-cse</div></div>
           <span class="contact-link-arrow">&rarr;</span>
         </a>
-        <!-- Codeforces -->
         <a class="contact-link" href="https://codeforces.com/profile/M0stafa" target="_blank" rel="noopener">
-          <div class="contact-link-icon" style="background:rgba(239,68,68,.14)">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          </div>
-          <div class="contact-link-info">
-            <div class="contact-link-label">Codeforces</div>
-            <div class="contact-link-val">M0stafa</div>
-          </div>
+          <div class="contact-link-icon" style="background:rgba(239,68,68,.14)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div class="contact-link-info"><div class="contact-link-label">Codeforces</div><div class="contact-link-val">M0stafa</div></div>
           <span class="contact-link-arrow">&rarr;</span>
         </a>
-        <!-- Codechef -->
         <a class="contact-link" href="https://www.codechef.com/users/M0stafa" target="_blank" rel="noopener">
-          <div class="contact-link-icon" style="background:rgba(245,158,11,.14)">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          </div>
-          <div class="contact-link-info">
-            <div class="contact-link-label">Codechef</div>
-            <div class="contact-link-val">M0stafa</div>
-          </div>
+          <div class="contact-link-icon" style="background:rgba(245,158,11,.14)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+          <div class="contact-link-info"><div class="contact-link-label">Codechef</div><div class="contact-link-val">M0stafa</div></div>
           <span class="contact-link-arrow">&rarr;</span>
         </a>
-        <!-- Email -->
         <a class="contact-link" href="mailto:mostafakamal.cse2022@gmail.com">
-          <div class="contact-link-icon" style="background:rgba(59,130,246,.14)">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          </div>
-          <div class="contact-link-info">
-            <div class="contact-link-label">Email</div>
-            <div class="contact-link-val">mostafakamal.cse2022@gmail.com</div>
-          </div>
+          <div class="contact-link-icon" style="background:rgba(59,130,246,.14)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <div class="contact-link-info"><div class="contact-link-label">Email</div><div class="contact-link-val">mostafakamal.cse2022@gmail.com</div></div>
           <span class="contact-link-arrow">&rarr;</span>
         </a>
       </div>
     </div>
   </section>
 
-  <!-- FOOTER -->
   <footer>
     <div class="footer-grid">
       <div>
-        <a class="footer-brand-name" href="#">
-          <img src="assets/logo.png" alt="YT Downloader" />
-          <span>YT Downloader</span>
-        </a>
+        <a class="footer-brand-name" href="#"><img src="assets/logo.png" alt="YT Downloader" /><span>YT Downloader</span></a>
         <p class="footer-tagline">Free, open-source YouTube downloader for macOS. Built with care by Mostafa Kamal. Powered by yt-dlp, FFmpeg, PyWebView &amp; Flask.</p>
       </div>
       <div>
