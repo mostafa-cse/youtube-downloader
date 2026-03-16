@@ -18,6 +18,14 @@
   <meta name="twitter:title" content="YT Downloader – Free macOS YouTube Downloader" />
   <meta name="twitter:description" content="Download YouTube videos in 4K on macOS. Free &amp; open-source." />
   <meta name="twitter:image" content="https://mostafa-cse.github.io/youtube-downloader/assets/logo.png" />
+  <!-- Google Analytics GA4 -- replace G-XXXXXXXXXX with your real Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -462,7 +470,7 @@
               <option>Performance Issue</option>
             </select>
           </div>
-          <div class="form-group"><label>MESSAGE *</label><textarea rows="4" placeholder="What you think, what broke, or what you’d love next…" required></textarea></div>
+          <div class="form-group"><label>MESSAGE *</label><textarea rows="4" placeholder="What you think, what broke, or what you'd love next…" required></textarea></div>
           <button type="submit" class="btn-send">Send Feedback</button>
           <div class="ok-msg" id="okMsg">Thank you — your feedback has been received.</div>
         </form>
