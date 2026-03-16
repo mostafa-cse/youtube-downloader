@@ -38,47 +38,26 @@ def list_video_files(folder):
     except Exception:
         return []
 
-def _height_steps(quality):
-    q = (quality or 'best').lower()
-    if q == '1080p':
-        return [1080, 720, 480, 360, 240]
-    if q == '720p':
-        return [720, 480, 360, 240]
-    if q == '480p':
-        return [480, 360, 240]
-    if q == '360p':
-        return [360, 240]
-    if q == '240p':
-        return [240]
-    return [2160, 1440, 1080, 720, 480, 360, 240]
+def _max_height(quality):
+    q = (quality or 'best').lower().replace('p','').strip()
+    return {'best':None,'4k':2160,'2160':2160,'1440':1440,
+            '1080':1080,'720':720,'480':480,'360':360,'240':240}.get(q)
 
 def _video_selector_ladder(quality, filetype):
-    heights = _height_steps(quality)
-    selectors = []
-
-    for h in heights:
-        selectors += [
-            f'bestvideo[height<={h}]+bestaudio/best[height<={h}]',
-            f'bv*[height<={h}]+ba/b[height<={h}]',
-        ]
-        if filetype == 'mp4':
-            selectors += [
-                f'bestvideo[height<={h}][ext=mp4]+bestaudio[ext=m4a]/best[height<={h}]',
-                f'bestvideo[height<={h}][ext=mp4]+bestaudio/best[height<={h}]',
-            ]
-
-    selectors += [
-        'bestvideo+bestaudio/best',
-        'bv*+ba/best',
-        'best'
+    max_h = _max_height(quality)
+    h = f'[height<={max_h}]' if max_h else ''
+    steps = [h2 for h2 in [1080,720,480,360,240]
+             if (not max_h or h2 <= max_h)]
+    ladder = [
+        f'bestvideo{h}+bestaudio/best{h}',
+        f'bestvideo{h}[vcodec^=avc1]+bestaudio[acodec^=mp4a]/bestvideo{h}+bestaudio/best{h}',
     ]
-
-    seen = set()
-    result = []
-    for s in selectors:
-        if s not in seen:
-            seen.add(s)
-            result.append(s)
+    for s in steps:
+        ladder += [f'bestvideo[height<={s}]+bestaudio/best[height<={s}]']
+    ladder += ['bestvideo+bestaudio/best', 'best']
+    seen, result = set(), []
+    for x in ladder:
+        if x not in seen: seen.add(x); result.append(x)
     return result
 
 def _audio_selector_ladder(filetype):
@@ -116,7 +95,7 @@ def get_format_ladder(quality, filetype):
         return [({'format': sel, 'postprocessors': pp}) for sel in _audio_selector_ladder(filetype)]
 
     extra = {
-        'format_sort': ['res', 'fps', 'hdr', 'vcodec', 'acodec', 'br', 'size']
+        'format_sort': ['res:2160', 'fps', 'hdr:12', 'vcodec', 'acodec', 'br'],
     }
     if filetype == 'mp4':
         extra['merge_output_format'] = 'mp4'

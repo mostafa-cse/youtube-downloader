@@ -91,11 +91,14 @@ def _cookie_error_hint(browser):
     )
 
 # Player clients tried in order — ios/android bypass most YouTube restrictions
+# web = highest quality (1080p/4K). ios/android = 144p/360p only!
 PLAYER_CLIENTS_LADDER = [
-    ['ios', 'android', 'mweb', 'web'],
-    ['android', 'web'],
-    ['mweb', 'web'],
     ['web'],
+    ['web', 'tv_embedded'],
+    ['tv_embedded'],
+    ['mweb'],
+    ['ios'],
+    ['android'],
 ]
 
 def _make_base_opts(outtmpl, hook, is_pl, browser, player_clients):
