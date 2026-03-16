@@ -1,6 +1,6 @@
 import yt_dlp, os, threading
 from datetime import datetime
-from utils import get_format_opts
+from utils import get_format_ladder
 import re as _re
 
 def _clean(s):
@@ -29,6 +29,18 @@ def log_update_last(tid, level, msg):
     else:
         logs.append({'time': ts(), 'level': level, 'msg': msg})
 
+def _is_format_error(msg):
+    """Return True if the error is a format-unavailability error (safe to retry)."""
+    indicators = [
+        'requested format is not available',
+        'no video formats found',
+        'unable to download webpage',  # can also be a transient format issue
+        'format not available',
+        'no media links found',
+    ]
+    m = msg.lower()
+    return any(i in m for i in indicators)
+
 def download_task(tid, url, save_dir, browser, quality, filetype):
     tasks[tid].update({
         'status': 'downloading', 'log': tasks[tid].get('log', []),
@@ -54,7 +66,7 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
             tasks[tid]['speed']        = spd
             tasks[tid]['eta']          = eta
             tasks[tid]['percent']      = pct
-            tasks[tid]['current_file'] = fname[:58] + '…' if len(fname) > 58 else fname
+            tasks[tid]['current_file'] = fname[:58] + '\u2026' if len(fname) > 58 else fname
 
             try:
                 tasks[tid]['progress'] = float(pct.replace('%', '').strip() or 0)
@@ -62,11 +74,10 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
                 pass
 
             item_str = f'[{item}/{total}] ' if total > 1 else ''
-            log_update_last(tid, 'DL', f'{item_str}{pct}  {spd}  ETA {eta}  —  {fname[:40]}')
+            log_update_last(tid, 'DL', f'{item_str}{pct}  {spd}  ETA {eta}  \u2014  {fname[:40]}')
 
         elif d['status'] == 'finished':
             fname = os.path.basename(d.get('filename', ''))
-            # Increment item counter
             tasks[tid]['item'] = tasks[tid].get('item', 0) + 1
             item  = tasks[tid]['item']
             total = tasks[tid]['total']
@@ -76,47 +87,40 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
         save_dir,
         '%(playlist_index)02d - %(title)s.%(ext)s' if is_pl else '%(title)s.%(ext)s'
     )
-    opts = {
-        'outtmpl': outtmpl,
+
+    # Base ydl options shared across all attempts
+    base_opts = {
+        'outtmpl':        outtmpl,
         'progress_hooks': [hook],
-        'noplaylist': not is_pl,
-        'quiet': True,
-        'no_warnings': False,
+        'noplaylist':     not is_pl,
+        'quiet':          True,
+        'no_warnings':    False,
+        'extractor_args': {'youtube': {'player_client': ['mweb', 'web']}},
     }
 
     import os as _os
     _os.environ['PATH'] = '/opt/homebrew/bin:' + _os.environ.get('PATH', '')
-    opts['extractor_args'] = {'youtube': {'player_client': ['mweb', 'web']}}
-    opts.update(get_format_opts(quality, filetype))
 
     if browser and browser != 'none':
-        opts['cookiesfrombrowser'] = (browser,)
+        base_opts['cookiesfrombrowser'] = (browser,)
         log(tid, 'INFO', f'Loading cookies from {browser.capitalize()}')
 
     log(tid, 'INFO', f'Quality: {quality.upper()}  |  Format: {filetype.upper()}  |  {"Playlist" if is_pl else "Single Video"}')
 
+    # ── Fetch metadata first (format-independent) ────────────────────────────
     try:
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            log(tid, 'INFO', 'Fetching video metadata…')
+        with yt_dlp.YoutubeDL({**base_opts, 'format': 'best'}) as ydl:
+            log(tid, 'INFO', 'Fetching video metadata\u2026')
             info = ydl.extract_info(url, download=False)
             if is_pl:
                 entries = [e for e in info.get('entries', []) if e]
                 tasks[tid]['total'] = len(entries)
-                log(tid, 'INFO', f'Playlist: "{info.get("title", "")}" — {len(entries)} videos')
+                log(tid, 'INFO', f'Playlist: "{info.get("title", "")}" \u2014 {len(entries)} videos')
             else:
                 dur = info.get('duration_string') or f'{info.get("duration", "?")}s'
-                log(tid, 'INFO', f'Video: "{info.get("title", "")}" — {dur}')
+                log(tid, 'INFO', f'Video: "{info.get("title", "")}" \u2014 {dur}')
                 tasks[tid]['total'] = 1
-                tasks[tid]['item']  = 0  # reset so hook increments to 1 on finish
-
-            log(tid, 'INFO', 'Download started…')
-            ydl.download([url])
-
-        tasks[tid]['status']   = 'done'
-        tasks[tid]['progress'] = 100
-        tasks[tid]['speed']    = ''
-        log(tid, 'SUCCESS', 'All downloads complete ✅')
-
+                tasks[tid]['item']  = 0
     except Exception as e:
         msg = str(e)
         if 'cancelled' in msg.lower():
@@ -124,7 +128,64 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
             log(tid, 'ERROR', 'Download cancelled.')
         else:
             tasks[tid]['status'] = 'error'
+            log(tid, 'ERROR', f'Metadata fetch failed: {msg}')
+        return
+
+    # ── Download with fallback ladder ────────────────────────────────────────
+    ladder = get_format_ladder(quality, filetype)
+    last_error = None
+
+    for attempt, fmt_opts in enumerate(ladder, start=1):
+        if tasks[tid].get('cancel'):
+            tasks[tid]['status'] = 'cancelled'
+            log(tid, 'ERROR', 'Download cancelled.')
+            return
+
+        fmt_label = fmt_opts.get('format', 'best')
+        if attempt > 1:
+            log(tid, 'INFO', f'Trying fallback format [{attempt}/{len(ladder)}]: {fmt_label}')
+        else:
+            log(tid, 'INFO', 'Download started\u2026')
+
+        opts = {**base_opts, **fmt_opts}
+        # Reset item counter for each attempt so UI stays clean
+        tasks[tid]['item'] = 0
+
+        try:
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                ydl.download([url])
+
+            # ── Success ──────────────────────────────────────────────────────
+            tasks[tid]['status']   = 'done'
+            tasks[tid]['progress'] = 100
+            tasks[tid]['speed']    = ''
+            log(tid, 'SUCCESS', 'All downloads complete \u2705')
+            return
+
+        except Exception as e:
+            msg = str(e)
+            last_error = msg
+
+            if 'cancelled' in msg.lower():
+                tasks[tid]['status'] = 'cancelled'
+                log(tid, 'ERROR', 'Download cancelled.')
+                return
+
+            if _is_format_error(msg):
+                # Safe to retry with next format in the ladder
+                log(tid, 'WARN', f'Format not available, trying next option\u2026')
+                continue
+
+            # Non-format error — don't retry
+            tasks[tid]['status'] = 'error'
             log(tid, 'ERROR', msg)
+            return
+
+    # All ladder options exhausted
+    tasks[tid]['status'] = 'error'
+    log(tid, 'ERROR',
+        f'No compatible format found for this video after {len(ladder)} attempts. '
+        f'Last error: {last_error}')
 
 def start(tid, url, save_dir, browser, quality, filetype):
     t = threading.Thread(
