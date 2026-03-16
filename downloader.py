@@ -239,11 +239,23 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
         tasks[tid]['total'] = len(entries)
         log(tid, 'INFO',
             f'Playlist: "{info.get("title", "")}" \u2014 {len(entries)} videos')
+        # Show resolution preview from first video
+        first = entries[0] if entries else None
+        if first:
+            _log_resolution_preview(tid, first, quality, filetype)
+        # Show resolution preview from first video
+        first = entries[0] if entries else None
+        if first:
+            _log_resolution_preview(tid, first, quality, filetype)
     else:
         dur = info.get('duration_string') or f'{info.get("duration", "?")}s'
         log(tid, 'INFO', f'Video: "{info.get("title", "")}" \u2014 {dur}')
         tasks[tid]['total'] = 1
         tasks[tid]['item']  = 0
+        # Show resolution BEFORE download
+        _log_resolution_preview(tid, info, quality, filetype)
+        # Show resolution BEFORE download
+        _log_resolution_preview(tid, info, quality, filetype)
 
     # ─── DOWNLOAD WITH FORMAT FALLBACK LADDER ────────────────────────────────
     best_clients = PLAYER_CLIENTS_LADDER[0]
