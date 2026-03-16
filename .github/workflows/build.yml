@@ -15,24 +15,24 @@ jobs:
           python-version: '3.11'
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
-          pip install pyinstaller static-ffmpeg
+          pip install flask pywebview yt-dlp static-ffmpeg pyinstaller
       - name: Build EXE
         run: |
           pyinstaller --noconfirm --windowed --onefile `
-            --name "YT Downloader" `
+            --name "YT-Downloader" `
             --add-data "templates;templates" `
             --add-data "static;static" `
             --hidden-import yt_dlp `
             --hidden-import webview `
+            --hidden-import flask `
             main.py
       - uses: actions/upload-artifact@v4
         with:
           name: windows-exe
-          path: "dist/YT Downloader.exe"
+          path: dist/YT-Downloader.exe
 
   build-linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -40,46 +40,59 @@ jobs:
           python-version: '3.11'
       - name: Install system deps
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev dpkg
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            libwebkit2gtk-4.0-dev \
+            gir1.2-webkit2-4.0 \
+            dpkg-dev
       - name: Install Python deps
         run: |
-          pip install -r requirements.txt
-          pip install pyinstaller static-ffmpeg
+          pip install flask pywebview yt-dlp static-ffmpeg pyinstaller
       - name: Build binary
         run: |
-          pyinstaller --noconfirm --windowed --onefile \
+          pyinstaller --noconfirm --onefile \
             --name "yt-downloader" \
             --add-data "templates:templates" \
             --add-data "static:static" \
             --hidden-import yt_dlp \
             --hidden-import webview \
+            --hidden-import flask \
             main.py
       - name: Package .deb
         run: |
-          mkdir -p deb/usr/bin
-          mkdir -p deb/usr/share/applications
-          mkdir -p deb/DEBIAN
-          cp dist/yt-downloader deb/usr/bin/
-          cat > deb/DEBIAN/control << CTRL
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"  # strip leading 'v'
+          mkdir -p pkg/DEBIAN
+          mkdir -p pkg/usr/bin
+          mkdir -p pkg/usr/share/applications
+          cp dist/yt-downloader pkg/usr/bin/yt-downloader
+          chmod +x pkg/usr/bin/yt-downloader
+          cat > pkg/DEBIAN/control << CTRL
           Package: yt-downloader
-          Version: 1.3.0
+          Version: ${VERSION}
           Architecture: amd64
           Maintainer: Mostafa Kamal <mostafa-cse@github.com>
-          Description: Free open-source YouTube downloader GUI
+          Depends: libgtk-3-0, libwebkit2gtk-4.0-37
+          Description: Free YouTube Downloader
+           Open-source YouTube downloader GUI. Powered by yt-dlp. No ads.
           CTRL
-          cat > deb/usr/share/applications/yt-downloader.desktop << DESK
+          cat > pkg/usr/share/applications/yt-downloader.desktop << DESK
           [Desktop Entry]
-          Name=YT Downloader
-          Exec=/usr/bin/yt-downloader
+          Version=1.0
           Type=Application
-          Categories=Utility;
+          Name=YT Downloader
+          Comment=Free YouTube video downloader
+          Exec=/usr/bin/yt-downloader
+          Icon=yt-downloader
+          Terminal=false
+          Categories=Utility;Network;
           DESK
-          dpkg-deb --build deb yt-downloader-v1.3.0.deb
+          dpkg-deb --build pkg yt-downloader-${VERSION}-amd64.deb
       - uses: actions/upload-artifact@v4
         with:
           name: linux-deb
-          path: yt-downloader-v1.3.0.deb
+          path: yt-downloader-*.deb
 
   build-macos:
     runs-on: macos-latest
@@ -90,31 +103,33 @@ jobs:
           python-version: '3.11'
       - name: Install deps
         run: |
-          pip install -r requirements.txt
-          pip install pyinstaller static-ffmpeg
+          pip install flask pywebview yt-dlp static-ffmpeg pyinstaller
           brew install create-dmg
       - name: Build app
         run: |
           pyinstaller --noconfirm --windowed --onedir \
             --name "YT Downloader" \
+            --icon YTDownloader.icns \
             --add-data "templates:templates" \
             --add-data "static:static" \
             --hidden-import yt_dlp \
             --hidden-import webview \
+            --hidden-import flask \
             main.py
       - name: Build DMG
         run: |
+          VERSION="${{ github.ref_name }}"
           create-dmg \
             --volname "YT Downloader" \
             --window-size 660 400 \
             --icon-size 120 \
             --app-drop-link 480 170 \
-            "YT-Downloader-v1.3.0.dmg" \
-            "dist/YT Downloader.app"
+            "YT-Downloader-${VERSION}.dmg" \
+            "dist/YT Downloader.app" || true
       - uses: actions/upload-artifact@v4
         with:
           name: macos-dmg
-          path: YT-Downloader-v1.3.0.dmg
+          path: YT-Downloader-*.dmg
 
   release:
     needs: [build-windows, build-linux, build-macos]
@@ -123,11 +138,36 @@ jobs:
       contents: write
     steps:
       - uses: actions/download-artifact@v4
+      - name: List artifacts
+        run: find . -type f
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_name }}
+          name: "YT Downloader ${{ github.ref_name }}"
+          body: |
+            ## YT Downloader ${{ github.ref_name }}
+
+            ### Downloads
+            | Platform | File |
+            |---|---|
+            | 🪟 Windows | `YT-Downloader.exe` |
+            | 🐧 Linux (Ubuntu/Debian) | `yt-downloader-amd64.deb` |
+            | 🍎 macOS | `YT-Downloader.dmg` |
+
+            ### What's New
+            - Cleaned repo: removed build artifacts, __pycache__, downloads folder
+            - Added MIT LICENSE file
+            - Fixed CI workflows to use dynamic version from tag
+            - Improved format fallback engine
+            - Live download progress and terminal log
+
+            ### Install
+            - **Windows:** Run `.exe` directly
+            - **Linux:** `sudo dpkg -i yt-downloader-*-amd64.deb`
+            - **macOS:** Open DMG → drag to Applications → right-click Open on first launch
           files: |
-            windows-exe/YT Downloader.exe
-            linux-deb/yt-downloader-v1.3.0.deb
-            macos-dmg/YT-Downloader-v1.3.0.dmg
+            windows-exe/YT-Downloader.exe
+            linux-deb/yt-downloader-*.deb
+            macos-dmg/YT-Downloader-*.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
