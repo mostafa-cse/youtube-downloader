@@ -1,7 +1,6 @@
 import os, subprocess
 
 def pick_folder_mac():
-    # Try Finder-based dialog first (works outside sandbox)
     script = '''
 tell application "Finder"
     activate
@@ -18,7 +17,6 @@ end tell
         return out.decode().strip()
     except Exception:
         pass
-    # Fallback: System Events
     script2 = 'tell app "System Events" to return POSIX path of (choose folder with prompt "Select download folder")'
     try:
         out = subprocess.check_output(
@@ -40,51 +38,55 @@ def list_video_files(folder):
     except Exception:
         return []
 
-# ── Format selector ladder ───────────────────────────────────────────────────
-# Each entry is tried in order; the first one that succeeds is used.
-# This avoids the hard "Requested format is not available" error.
+def _height_steps(quality):
+    q = (quality or 'best').lower()
+    if q == '1080p':
+        return [1080, 720, 480, 360, 240]
+    if q == '720p':
+        return [720, 480, 360, 240]
+    if q == '480p':
+        return [480, 360, 240]
+    if q == '360p':
+        return [360, 240]
+    if q == '240p':
+        return [240]
+    return [2160, 1440, 1080, 720, 480, 360, 240]
 
 def _video_selector_ladder(quality, filetype):
-    """
-    Returns a list of yt-dlp format selector strings, from most specific
-    to most permissive.  The caller retries until one succeeds.
-    """
-    height_map = {
-        'best':  None,
-        '4k':    2160,
-        '1080p': 1080,
-        '720p':  720,
-        '480p':  480,
-        '360p':  360,
-    }
-    max_h = height_map.get(quality.lower())
-    h = f'[height<={max_h}]' if max_h else ''
+    heights = _height_steps(quality)
+    selectors = []
 
-    if filetype == 'mp4':
-        return [
-            f'bestvideo{h}[ext=mp4]+bestaudio[ext=m4a]/bestvideo{h}[ext=mp4]+bestaudio',
-            f'bestvideo{h}+bestaudio/bestvideo{h}',
-            f'best{h}[ext=mp4]',
-            f'best{h}',
-            'bestvideo+bestaudio/best',
-            'best',
+    for h in heights:
+        selectors += [
+            f'bestvideo[height<={h}]+bestaudio/best[height<={h}]',
+            f'bv*[height<={h}]+ba/b[height<={h}]',
         ]
-    else:  # mkv or any other container
-        return [
-            f'bestvideo{h}+bestaudio/bestvideo{h}',
-            f'best{h}',
-            'bestvideo+bestaudio/best',
-            'best',
-        ]
+        if filetype == 'mp4':
+            selectors += [
+                f'bestvideo[height<={h}][ext=mp4]+bestaudio[ext=m4a]/best[height<={h}]',
+                f'bestvideo[height<={h}][ext=mp4]+bestaudio/best[height<={h}]',
+            ]
+
+    selectors += [
+        'bestvideo+bestaudio/best',
+        'bv*+ba/best',
+        'best'
+    ]
+
+    seen = set()
+    result = []
+    for s in selectors:
+        if s not in seen:
+            seen.add(s)
+            result.append(s)
+    return result
 
 def _audio_selector_ladder(filetype):
     if filetype == 'm4a':
-        return ['bestaudio[ext=m4a]/bestaudio', 'best']
-    # mp3
+        return ['bestaudio[ext=m4a]/bestaudio', 'bestaudio', 'best']
     return ['bestaudio/best', 'best']
 
 def get_format_opts(quality, filetype):
-    """Return the first ydl_opts dict in the fallback ladder (for initial attempt)."""
     if filetype in ('mp3', 'm4a'):
         codec = 'mp3' if filetype == 'mp3' else 'aac'
         return {
@@ -97,7 +99,10 @@ def get_format_opts(quality, filetype):
         }
 
     selectors = _video_selector_ladder(quality, filetype)
-    opts = {'format': selectors[0]}
+    opts = {
+        'format': selectors[0],
+        'format_sort': ['res', 'fps', 'hdr', 'vcodec', 'acodec', 'br', 'size']
+    }
     if filetype == 'mp4':
         opts['merge_output_format'] = 'mp4'
     elif filetype == 'mkv':
@@ -105,17 +110,18 @@ def get_format_opts(quality, filetype):
     return opts
 
 def get_format_ladder(quality, filetype):
-    """Return the full list of (format_str, extra_opts) tuples for fallback retry."""
     if filetype in ('mp3', 'm4a'):
         codec = 'mp3' if filetype == 'mp3' else 'aac'
         pp = [{'key': 'FFmpegExtractAudio', 'preferredcodec': codec, 'preferredquality': '320'}]
         return [({'format': sel, 'postprocessors': pp}) for sel in _audio_selector_ladder(filetype)]
 
-    extra = {}
+    extra = {
+        'format_sort': ['res', 'fps', 'hdr', 'vcodec', 'acodec', 'br', 'size']
+    }
     if filetype == 'mp4':
-        extra = {'merge_output_format': 'mp4'}
+        extra['merge_output_format'] = 'mp4'
     elif filetype == 'mkv':
-        extra = {'merge_output_format': 'mkv'}
+        extra['merge_output_format'] = 'mkv'
 
     result = []
     for sel in _video_selector_ladder(quality, filetype):
