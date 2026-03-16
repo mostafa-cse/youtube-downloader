@@ -1,13 +1,13 @@
 name: Release All Platforms
 
 on:
-  workflow_dispatch:   # manual trigger button on GitHub
+  workflow_dispatch:
   push:
     tags: ['v*']
 
 jobs:
 
-  # ─── WINDOWS EXE ───────────────────────────────────────
+  # ─── WINDOWS EXE ───────────────────────────────────────────────────
   windows:
     runs-on: windows-latest
     steps:
@@ -38,7 +38,7 @@ jobs:
           name: windows-exe
           path: dist/YT-Downloader.exe
 
-  # ─── LINUX DEB ─────────────────────────────────────────
+  # ─── LINUX DEB ──────────────────────────────────────────────────────
   linux:
     runs-on: ubuntu-22.04
     steps:
@@ -74,15 +74,13 @@ jobs:
 
       - name: Package .deb
         run: |
-          VERSION="1.3.0"
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"
           mkdir -p pkg/DEBIAN
           mkdir -p pkg/usr/bin
           mkdir -p pkg/usr/share/applications
-          mkdir -p pkg/usr/share/pixmaps
-
           cp dist/yt-downloader pkg/usr/bin/yt-downloader
           chmod +x pkg/usr/bin/yt-downloader
-
           cat > pkg/DEBIAN/control << CTRL
           Package: yt-downloader
           Version: ${VERSION}
@@ -90,10 +88,8 @@ jobs:
           Maintainer: Mostafa Kamal <mostafa-cse@github.com>
           Depends: libgtk-3-0, libwebkit2gtk-4.0-37
           Description: Free YouTube Downloader
-           Open-source macOS/Linux/Windows YouTube downloader GUI.
-           Powered by yt-dlp. No ads. No subscription.
+           Open-source YouTube downloader GUI. Powered by yt-dlp. No ads.
           CTRL
-
           cat > pkg/usr/share/applications/yt-downloader.desktop << DESK
           [Desktop Entry]
           Version=1.0
@@ -105,17 +101,15 @@ jobs:
           Terminal=false
           Categories=Utility;Network;
           DESK
-
-          dpkg-deb --build pkg yt-downloader-v${VERSION}-amd64.deb
-          echo "✅ .deb built"
+          dpkg-deb --build pkg yt-downloader-${VERSION}-amd64.deb
 
       - name: Upload DEB artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-deb
-          path: yt-downloader-v1.3.0-amd64.deb
+          path: yt-downloader-*.deb
 
-  # ─── MACOS DMG ─────────────────────────────────────────
+  # ─── MACOS DMG ───────────────────────────────────────────────────
   macos:
     runs-on: macos-latest
     steps:
@@ -134,6 +128,7 @@ jobs:
         run: |
           pyinstaller --noconfirm --windowed --onedir \
             --name "YT Downloader" \
+            --icon YTDownloader.icns \
             --add-data "templates:templates" \
             --add-data "static:static" \
             --hidden-import yt_dlp \
@@ -143,21 +138,22 @@ jobs:
 
       - name: Build DMG
         run: |
+          VERSION="${{ github.ref_name }}"
           create-dmg \
             --volname "YT Downloader" \
             --window-size 660 400 \
             --icon-size 120 \
             --app-drop-link 480 170 \
-            "YT-Downloader-v1.3.0.dmg" \
+            "YT-Downloader-${VERSION}.dmg" \
             "dist/YT Downloader.app" || true
 
       - name: Upload DMG artifact
         uses: actions/upload-artifact@v4
         with:
           name: macos-dmg
-          path: YT-Downloader-v1.3.0.dmg
+          path: YT-Downloader-*.dmg
 
-  # ─── CREATE GITHUB RELEASE ─────────────────────────────
+  # ─── CREATE GITHUB RELEASE ──────────────────────────────────────────
   release:
     needs: [windows, linux, macos]
     runs-on: ubuntu-latest
@@ -167,7 +163,7 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
 
-      - name: List files
+      - name: List artifacts
         run: find . -type f
 
       - name: Create GitHub Release
@@ -178,26 +174,37 @@ jobs:
           body: |
             ## YT Downloader ${{ github.ref_name }}
 
-            ### Downloads
-            | Platform | File |
-            |---|---|
-            | 🪟 Windows | `YT-Downloader.exe` |
-            | 🐧 Linux (Ubuntu/Debian) | `yt-downloader-amd64.deb` |
-            | 🍎 macOS | `YT-Downloader.dmg` |
+            ### 📥 Downloads
+            | Platform | File | Install |
+            |---|---|---|
+            | 🪟 Windows 10/11 | `YT-Downloader.exe` | Run directly |
+            | 🐧 Linux (Ubuntu/Debian) | `yt-downloader-amd64.deb` | `sudo dpkg -i *.deb` |
+            | 🍎 macOS 12+ | `YT-Downloader.dmg` | Open DMG → drag to Apps |
 
-            ### What's New
-            - Fixed Choose Folder button threading issue
-            - Added Clear History feature
-            - Format fallback for YouTube API changes
-            - Live download progress and terminal log
+            ### ✨ What's New in ${{ github.ref_name }}
+            - Cleaned repo: removed all build artifacts, `__pycache__`, and accidentally committed downloads
+            - Added MIT LICENSE file
+            - Fixed CI workflows to use dynamic version from Git tag
+            - macOS: added app icon (`--icon YTDownloader.icns`) to PyInstaller build
+            - Improved format fallback engine for YouTube API changes
+            - Live download progress, speed, ETA and terminal log
+            - Cancel download at any time
+            - Clear history without deleting files
 
-            ### Install
-            - **Windows:** Run the `.exe` directly
-            - **Linux:** `sudo dpkg -i yt-downloader-v1.3.0-amd64.deb`
-            - **macOS:** Open DMG → drag to Applications
+            ### 📖 First Launch (macOS)
+            > Right-click the app → **Open** → **Open** *(bypasses Gatekeeper — one time only)*
+
+            ### 🛠 Run From Source
+            ```bash
+            git clone https://github.com/mostafa-cse/youtube-downloader.git
+            cd youtube-downloader
+            python3 -m venv venv
+            venv/bin/pip install flask yt-dlp pywebview static-ffmpeg
+            venv/bin/python main.py
+            ```
           files: |
             windows-exe/YT-Downloader.exe
-            linux-deb/yt-downloader-v1.3.0-amd64.deb
-            macos-dmg/YT-Downloader-v1.3.0.dmg
+            linux-deb/yt-downloader-*.deb
+            macos-dmg/YT-Downloader-*.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
