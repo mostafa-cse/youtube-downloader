@@ -94,7 +94,7 @@ function updateUrlBadge(val){
 }
 
 function onUrl(el){
-  document.getElementById('xBtn').style.display = el.value ? 'block' : 'none';
+  document.getElementById('xBtn').style.display = el.value ? 'flex' : 'none';
   updateUrlBadge(el.value);
 }
 
@@ -103,6 +103,24 @@ function clearUrl(){
   i.value=''; i.focus();
   document.getElementById('xBtn').style.display='none';
   updateUrlBadge('');
+}
+
+async function pasteFromClipboard(){
+  try {
+    if(navigator.clipboard && navigator.clipboard.readText){
+      const text = await navigator.clipboard.readText();
+      if(text){
+        const el = document.getElementById('urlInput');
+        el.value = text.trim();
+        onUrl(el);
+        el.focus();
+      }
+    } else {
+      document.getElementById('urlInput').focus();
+    }
+  } catch(e) {
+    document.getElementById('urlInput').focus();
+  }
 }
 
 document.addEventListener('keydown', function(e){
@@ -117,14 +135,20 @@ function onFormatChange(){
   const rl = document.getElementById('resLbl');
   if(!rg || !rl) return;
   if(ft === 'mp3' || ft === 'm4a'){
-    rg.style.opacity = '0.38';
+    rg.style.opacity = '0.35';
     rg.style.pointerEvents = 'none';
-    rl.textContent = 'Resolution (Audio 320kbps)';
+    rl.textContent = 'Resolution (Audio Only - 320kbps)';
   } else {
     rg.style.opacity = '1';
     rg.style.pointerEvents = 'auto';
-    rl.textContent = 'Resolution';
+    rl.textContent = 'Resolution / Quality';
   }
+}
+
+function clearLog(){
+  const tb = document.getElementById('termBody');
+  if(!tb) return;
+  tb.innerHTML = '<div class="tl"><span class="tl-t">[--:--:--]</span><span class="tl-k tag-INFO">INFO</span><span class="tl-m msg-INFO">Console cleared. Paste a URL and click Download Now.</span></div><span class="cursor" id="cursor"></span>';
 }
 document.addEventListener('DOMContentLoaded', ()=>{
   document.querySelectorAll('input[name="ft"]').forEach(r=>{
@@ -313,7 +337,7 @@ function loadFiles(){
     }
 
     if(!files.length){
-      list.innerHTML='<li class="empty"><div class="empty-sub">No Downloads Yet</div>Start a download above to see files here</li>';
+      list.innerHTML='<li class="empty"><div class="empty-icon">🎬</div><div class="empty-sub">No Downloads Yet</div><span>Completed video and audio downloads will be displayed here.</span></li>';
       return;
     }
     list.innerHTML='';
@@ -322,17 +346,24 @@ function loadFiles(){
       const sep = folder.includes('\\') ? '\\' : '/';
       const fp2 = (f.startsWith('/') || /^[A-Za-z]:[\\/]/.test(f)) ? f : (folder ? folder.replace(/[\\/]+$/, '') + sep + f : f);
       const fname=f.includes('/')?f.split('/').pop():(f.includes('\\')?f.split('\\').pop():f);
+      const isAudio = ext === 'mp3' || ext === 'm4a' || ext === 'aac' || ext === 'wav' || ext === 'flac';
+      const mediaIcon = isAudio ? '🎵' : '🎬';
       const li=document.createElement('li'); li.className='fi';
       li.style.animationDelay=(i*.03)+'s';
       li.innerHTML=`
         <div class="fi-row">
           <span class="fi-idx">${String(i+1).padStart(2,'0')}</span>
-          <span class="fi-dot ${EXT_DOTS[ext]||'other'}"></span>
+          <span class="fi-media-icon">${mediaIcon}</span>
           <div class="fi-meta">
             <div class="fi-name" title="${fname}">${fname}</div>
-            <span class="fi-tag">${ext.toUpperCase()}</span>
+            <div class="fi-sub">
+              <span class="fi-tag fi-tag-${ext}">${ext.toUpperCase()}</span>
+            </div>
           </div>
-          <button class="fi-open-btn" onclick="openFile(this)">⬡ Open</button>
+          <button class="fi-open-btn" onclick="openFile(this)">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <span>Play</span>
+          </button>
         </div>`;
       li.querySelector('.fi-open-btn').dataset.path = fp2;
       list.appendChild(li);
