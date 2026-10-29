@@ -51,15 +51,26 @@ def main():
         print(f"Error: Flask server failed to start on port {port} within 10 seconds.")
         sys.exit(1)
         
-    webview.create_window(
-        'YT Downloader',
-        f'http://127.0.0.1:{port}',
-        width=960, height=760,
-        min_size=(680, 560),
-        resizable=True,
-        text_select=True
-    )
-    webview.start()
+    try:
+        webview.create_window(
+            'YT Downloader',
+            f'http://127.0.0.1:{port}',
+            width=960, height=760,
+            min_size=(680, 560),
+            resizable=True,
+            text_select=True
+        )
+        webview.start()
+    except Exception as e:
+        print(f"Native GUI window unavailable ({e}).")
+        print(f"Opening YT Downloader in your default browser at http://127.0.0.1:{port} ...")
+        import webbrowser
+        webbrowser.open(f'http://127.0.0.1:{port}')
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("\nShutting down YT Downloader.")
 
 if __name__ == '__main__':
     main()
