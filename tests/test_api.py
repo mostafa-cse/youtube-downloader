@@ -307,4 +307,52 @@ def test_main_server_mode(monkeypatch):
     assert len(called) == 1
     assert called[0].get('port') == main.DEFAULT_PORT
 
+def test_analyze_endpoint(client, monkeypatch):
+    import downloader
+    def mock_analyze(url):
+        return {
+            'success': True,
+            'title': 'Mock Video Title',
+            'duration': '3:30',
+            'thumbnail': 'https://example.com/thumb.jpg',
+            'is_playlist': False,
+            'playlist_count': 1,
+            'heights': [1080, 720, 480],
+            'resolutions': downloader._format_resolution_options([1080, 720, 480]),
+            'max_resolution': '1080p FHD'
+        }
+    monkeypatch.setattr(downloader, 'analyze_url', mock_analyze)
+    
+    # Missing URL
+    res = client.post('/analyze', json={})
+    assert res.status_code == 400
+    
+    # Valid URL
+    res = client.post('/analyze', json={'url': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'})
+    assert res.status_code == 200
+    data = res.get_json()
+    assert data['success'] is True
+    assert data['title'] == 'Mock Video Title'
+    assert len(data['resolutions']) >= 4  # Best + 1080 + 720 + 480
+
+def test_format_resolution_options():
+    import downloader
+    opts_4k = downloader._format_resolution_options([2160, 1080, 720, 360])
+    ids_4k = [o['id'] for o in opts_4k]
+    assert 'best' in ids_4k
+    assert '4k' in ids_4k
+    assert '1080' in ids_4k
+    assert '720' in ids_4k
+    assert '360' in ids_4k
+    assert '8k' not in ids_4k  # Not present in heights
+
+    opts_720 = downloader._format_resolution_options([720, 480])
+    ids_720 = [o['id'] for o in opts_720]
+    assert 'best' in ids_720
+    assert '720' in ids_720
+    assert '480' in ids_720
+    assert '1080' not in ids_720
+    assert '4k' not in ids_720
+
+
 

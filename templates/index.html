@@ -81,17 +81,36 @@
       </div>
     </div>
 
-    <!-- RESOLUTION (Full Width Segmented Bar) -->
+    <!-- Video Preview Card (Shows when link is analyzed) -->
+    <div class="video-preview-card" id="videoPreview" style="display:none">
+      <div class="vp-thumb-wrap">
+        <img id="vpThumb" class="vp-thumb" src="" alt="Thumbnail" onerror="this.style.display='none'" />
+        <span id="vpDuration" class="vp-duration"></span>
+      </div>
+      <div class="vp-info">
+        <div id="vpTitle" class="vp-title">Video title</div>
+        <div class="vp-meta">
+          <span id="vpBadgeType" class="vp-tag">🎬 Video</span>
+          <span id="vpMaxRes" class="vp-tag vp-tag-res">Max: 1080p</span>
+          <span id="vpResCount" class="vp-tag vp-tag-count">Available resolutions</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESOLUTION (Dynamically populated upon link analysis) -->
     <div class="opt-group opt-group-full" id="resGroup">
       <div class="opt-lbl-row">
         <div class="opt-lbl-left">
           <span class="opt-lbl" id="resLbl">Resolution / Quality</span>
+          <span id="resStatusBadge" class="res-status-badge" style="display:none">
+            <span class="res-spinner"></span> Analyzing video…
+          </span>
         </div>
-        <span class="opt-hint">Auto-merges highest quality video + audio streams</span>
+        <span class="opt-hint" id="resHint">Paste a link to detect available resolutions</span>
       </div>
-      <div class="seg sq">
+      <div class="seg sq" id="resContainer">
         <input type="radio" name="q" id="qb" value="best" checked><label for="qb" title="Auto-detect and merge highest quality video and audio"><span class="seg-star">⚡</span>Best (Auto)</label>
-        <input type="radio" name="q" id="q10" value="1080"><label for="q10" title="Suggested: 1080p Full HD (Smoothest playback & optimal size)"><span class="seg-star">★</span>1080p FHD</label>
+        <input type="radio" name="q" id="q10" value="1080"><label for="q10" title="Suggested: 1080p Full HD"><span class="seg-star">★</span>1080p FHD</label>
         <input type="radio" name="q" id="q4" value="4k"><label for="q4">4K UHD</label>
         <input type="radio" name="q" id="q8" value="8k"><label for="q8">8K</label>
         <input type="radio" name="q" id="q72" value="720"><label for="q72">720p HD</label>

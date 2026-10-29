@@ -153,6 +153,99 @@ def _make_base_opts(outtmpl, hook, is_pl, browser, player_clients):
         opts['cookiesfrombrowser'] = (browser,)
     return opts
 
+def _format_resolution_options(heights):
+    res_map = [
+        (4320, '8k', '8K UHD', '8K'),
+        (2160, '4k', '4K UHD', '4K'),
+        (1440, '1440', '1440p QHD', '1440p'),
+        (1080, '1080', '1080p FHD ★', '1080p'),
+        (720, '720', '720p HD', '720p'),
+        (480, '480', '480p', '480p'),
+        (360, '360', '360p', '360p'),
+        (240, '240', '240p', '240p'),
+        (144, '144', '144p', '144p'),
+    ]
+    options = [{'id': 'best', 'label': '⚡ Best (Auto)', 'title': 'Highest available resolution'}]
+    if not heights:
+        for _, opt_id, label, _ in res_map[:5]:
+            options.append({'id': opt_id, 'label': label})
+        return options
+
+    for threshold, opt_id, label, _ in res_map:
+        if any(h == threshold or (h >= threshold and threshold > 1080) for h in heights):
+            options.append({'id': opt_id, 'label': label, 'height': threshold})
+    return options
+
+def analyze_url(url):
+    """Fast extraction of video metadata and available resolutions."""
+    if not url:
+        return {'success': False, 'error': 'No URL provided'}
+
+    url = url.strip()
+    if not url.startswith(('http://', 'https://')):
+        url = 'https://' + url
+
+    for clients in PLAYER_CLIENTS_LADDER:
+        opts = {
+            'quiet': True,
+            'no_warnings': True,
+            'skip_download': True,
+            'extract_flat': False,
+        }
+        if clients:
+            opts['extractor_args'] = {'youtube': {'player_client': clients}}
+        try:
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+                if not info:
+                    continue
+                is_pl = 'entries' in info or info.get('_type') == 'playlist'
+                if is_pl:
+                    entries = [e for e in info.get('entries') or [] if e]
+                    first = entries[0] if entries else {}
+                    formats = first.get('formats') or []
+                    title = info.get('title') or first.get('title') or 'YouTube Playlist'
+                    count = len(entries)
+                    thumb = first.get('thumbnail') or ''
+                    dur = first.get('duration_string') or ''
+                else:
+                    formats = info.get('formats') or []
+                    title = info.get('title') or 'YouTube Video'
+                    count = 1
+                    thumb = info.get('thumbnail') or ''
+                    dur = info.get('duration_string') or (f"{info['duration']}s" if info.get('duration') else '')
+
+                has_media = any(f.get('vcodec') != 'none' or f.get('acodec') != 'none' for f in formats)
+                if not has_media and formats:
+                    continue
+
+                heights = sorted({f['height'] for f in formats if f.get('height') and f.get('vcodec') != 'none'}, reverse=True)
+                res_options = _format_resolution_options(heights)
+
+                max_res = "Auto"
+                if heights:
+                    if heights[0] >= 4320: max_res = "8K UHD"
+                    elif heights[0] >= 2160: max_res = "4K UHD"
+                    elif heights[0] >= 1440: max_res = "1440p QHD"
+                    elif heights[0] >= 1080: max_res = "1080p FHD"
+                    elif heights[0] >= 720: max_res = "720p HD"
+                    else: max_res = f"{heights[0]}p"
+
+                return {
+                    'success': True,
+                    'title': title,
+                    'duration': dur,
+                    'thumbnail': thumb,
+                    'is_playlist': is_pl,
+                    'playlist_count': count,
+                    'heights': heights,
+                    'resolutions': res_options,
+                    'max_resolution': max_res
+                }
+        except Exception:
+            continue
+    return {'success': False, 'error': 'Could not extract video metadata'}
+
 def _log_resolution_preview(tid, info, quality, filetype):
     if not info:
         return

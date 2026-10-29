@@ -469,6 +469,115 @@ body {
   to   { opacity: 1; transform: scale(1); }
 }
 
+/* ── VIDEO PREVIEW CARD ── */
+.video-preview-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: cardFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.vp-thumb-wrap {
+  position: relative;
+  width: 96px;
+  height: 56px;
+  border-radius: 7px;
+  overflow: hidden;
+  background: #000;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+.vp-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.vp-duration {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.vp-info {
+  flex: 1;
+  min-width: 0;
+}
+.vp-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 5px;
+}
+.vp-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.vp-tag {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--t2);
+}
+.vp-tag-res {
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--cyan);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+.vp-tag-count {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--green);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+/* ── RESOLUTION STATUS BADGE & SPINNER ── */
+.res-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--cyan);
+  background: rgba(56, 189, 248, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  animation: badgePop 0.2s ease;
+}
+.res-spinner {
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid rgba(56, 189, 248, 0.25);
+  border-top-color: var(--cyan);
+  border-radius: 50%;
+  animation: resSpin 0.7s linear infinite;
+  display: inline-block;
+}
+@keyframes resSpin {
+  to { transform: rotate(360deg); }
+}
+
 /* ── SEGMENTED CONTROLS & OPTIONS ── */
 .opt-group {
   margin-bottom: 14px;

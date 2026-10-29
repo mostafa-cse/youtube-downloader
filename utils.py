@@ -91,7 +91,7 @@ def list_video_files(folder):
 def _max_height(quality):
     q = (quality or 'best').lower().replace('p','').strip()
     return {'best':None,'8k':4320,'4320':4320,'4k':2160,'2160':2160,'1440':1440,
-            '1080':1080,'720':720,'480':480,'360':360,'240':240}.get(q)
+            '1080':1080,'720':720,'480':480,'360':360,'240':240,'144':144}.get(q)
 
 def _video_selector_ladder(quality, filetype):
     max_h = _max_height(quality)

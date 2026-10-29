@@ -73,16 +73,143 @@ function updateUrlBadge(val){
   }
 }
 
+let analyzeTimer = null;
+let lastAnalyzedUrl = '';
+const DEFAULT_RESOLUTIONS = [
+  { id: 'best', label: '<span class="seg-star">⚡</span>Best (Auto)', title: 'Auto-detect and merge highest quality video and audio' },
+  { id: '1080', label: '<span class="seg-star">★</span>1080p FHD', title: 'Suggested: 1080p Full HD' },
+  { id: '4k', label: '4K UHD', title: '4K Ultra HD' },
+  { id: '8k', label: '8K', title: '8K Ultra HD' },
+  { id: '720', label: '720p HD', title: '720p HD' },
+  { id: '480', label: '480p', title: '480p Standard' },
+  { id: '360', label: '360p', title: '360p Standard' }
+];
+
+function renderResolutions(options, selectedId){
+  const container = document.getElementById('resContainer');
+  if(!container) return;
+  const current = selectedId || g('q') || 'best';
+  let html = '';
+  let foundSelected = false;
+  options.forEach((opt, idx) => {
+    const isChecked = (opt.id === current) || (!foundSelected && idx === 0);
+    if(opt.id === current) foundSelected = true;
+    html += `
+      <input type="radio" name="q" id="q_${opt.id}" value="${opt.id}" ${isChecked ? 'checked' : ''}>
+      <label for="q_${opt.id}" title="${opt.title || opt.label}">${opt.label}</label>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+function triggerAnalyze(url){
+  const clean = (url || '').trim();
+  if(!clean || (!clean.includes('youtube.com') && !clean.includes('youtu.be') && !clean.startsWith('http'))){
+    resetAnalyzeState();
+    return;
+  }
+  if(clean === lastAnalyzedUrl) return;
+
+  const badge = document.getElementById('resStatusBadge');
+  const hint = document.getElementById('resHint');
+  if(badge) {
+    badge.innerHTML = '<span class="res-spinner"></span> Analyzing video…';
+    badge.style.display = 'inline-flex';
+  }
+  if(hint) hint.textContent = 'Detecting available video streams…';
+
+  fetch('/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: clean })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if(data.success && data.resolutions && data.resolutions.length > 0){
+      lastAnalyzedUrl = clean;
+      if(badge) {
+        badge.innerHTML = `✓ ${data.resolutions.length} resolutions available`;
+        badge.style.display = 'inline-flex';
+      }
+      if(hint) hint.textContent = `Max: ${data.max_resolution} · Lossless merge`;
+
+      // Show video preview card
+      const vp = document.getElementById('videoPreview');
+      const vpTitle = document.getElementById('vpTitle');
+      const vpThumb = document.getElementById('vpThumb');
+      const vpDuration = document.getElementById('vpDuration');
+      const vpMaxRes = document.getElementById('vpMaxRes');
+      const vpResCount = document.getElementById('vpResCount');
+      const vpBadgeType = document.getElementById('vpBadgeType');
+
+      if(vp){
+        if(vpTitle) vpTitle.textContent = data.title;
+        if(vpThumb) {
+          if(data.thumbnail){
+            vpThumb.src = data.thumbnail;
+            vpThumb.style.display = 'block';
+          } else {
+            vpThumb.style.display = 'none';
+          }
+        }
+        if(vpDuration) {
+          vpDuration.textContent = data.duration || '';
+          vpDuration.style.display = data.duration ? 'inline-block' : 'none';
+        }
+        if(vpMaxRes) vpMaxRes.textContent = `Max: ${data.max_resolution}`;
+        if(vpResCount) vpResCount.textContent = `${data.resolutions.length - 1} resolution options`;
+        if(vpBadgeType) vpBadgeType.textContent = data.is_playlist ? `📋 ${data.playlist_count} Videos` : '🎬 Single Video';
+        vp.style.display = 'flex';
+      }
+
+      // Render the dynamically detected resolutions
+      renderResolutions(data.resolutions);
+    } else {
+      if(badge) {
+        badge.textContent = 'Universal resolutions';
+        badge.style.display = 'inline-flex';
+      }
+      if(hint) hint.textContent = 'Auto-detect fallback active';
+    }
+  })
+  .catch(() => {
+    if(badge) badge.style.display = 'none';
+    if(hint) hint.textContent = 'Auto-merges highest quality video + audio streams';
+  });
+}
+
+function resetAnalyzeState(){
+  lastAnalyzedUrl = '';
+  const vp = document.getElementById('videoPreview');
+  const badge = document.getElementById('resStatusBadge');
+  const hint = document.getElementById('resHint');
+  if(vp) vp.style.display = 'none';
+  if(badge) badge.style.display = 'none';
+  if(hint) hint.textContent = 'Paste a link to detect available resolutions';
+  renderResolutions(DEFAULT_RESOLUTIONS, 'best');
+}
+
 function onUrl(el){
-  document.getElementById('xBtn').style.display = el.value ? 'flex' : 'none';
-  updateUrlBadge(el.value);
+  const val = (el.value || '').trim();
+  document.getElementById('xBtn').style.display = val ? 'flex' : 'none';
+  updateUrlBadge(val);
+
+  if(analyzeTimer) clearTimeout(analyzeTimer);
+  if(!val){
+    resetAnalyzeState();
+  } else {
+    analyzeTimer = setTimeout(() => triggerAnalyze(val), 400);
+  }
 }
 
 function clearUrl(){
-  const i=document.getElementById('urlInput');
-  i.value=''; i.focus();
-  document.getElementById('xBtn').style.display='none';
+  const i = document.getElementById('urlInput');
+  i.value = '';
+  i.focus();
+  document.getElementById('xBtn').style.display = 'none';
   updateUrlBadge('');
+  if(analyzeTimer) clearTimeout(analyzeTimer);
+  resetAnalyzeState();
 }
 
 async function pasteFromClipboard(){
@@ -94,6 +221,7 @@ async function pasteFromClipboard(){
         el.value = text.trim();
         onUrl(el);
         el.focus();
+        triggerAnalyze(text.trim());
       }
     } else {
       document.getElementById('urlInput').focus();

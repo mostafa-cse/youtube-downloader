@@ -81,6 +81,15 @@ def start_download():
     downloader.start(tid, url, save_dir, browser, quality, filetype)
     return jsonify({'task_id': tid})
 
+@app.route('/analyze', methods=['POST'])
+def analyze_video():
+    data = request.get_json(silent=True) or {}
+    url = (data.get('url') or '').strip()
+    if not url:
+        return jsonify({'success': False, 'error': 'No URL provided'}), 400
+    res = downloader.analyze_url(url)
+    return jsonify(res)
+
 @app.route('/cancel/<tid>', methods=['POST'])
 def cancel_download(tid):
     if tid in downloader.tasks:
