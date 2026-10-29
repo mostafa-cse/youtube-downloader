@@ -1,6 +1,6 @@
 import yt_dlp, os, threading
 from datetime import datetime
-from utils import get_format_ladder
+from utils import get_format_ladder, _max_height
 import re as _re
 
 def _clean(s):
@@ -53,15 +53,39 @@ def _is_cookie_error(msg):
         'cookies.binarycookies',   # Safari
         'cookies.sqlite',          # Firefox
         'permission denied',
-        'database is locked',      # Chrome open → SQLite lock
+        'database is locked',      # Chrome/Edge open → SQLite lock
+        'being used by another process', # Windows file lock
         'unable to open database', # Chrome cookie DB access fail
         'could not find',
         'no such file',
         'cookiesfrombrowser',
+        'could not extract cookies',
+        'failed to decrypt',
+        'decryption failed',
         'keyring',                 # Chrome/Chromium keyring errors on Linux
     ]
     m = msg.lower()
     return any(i in m for i in indicators)
+
+def _cleanup_partial_files(save_dir, fname=None):
+    try:
+        if not os.path.isdir(save_dir):
+            return
+        for f in os.listdir(save_dir):
+            if f.endswith(('.part', '.ytdl', '.temp')):
+                if not fname or fname in f:
+                    try:
+                        os.remove(os.path.join(save_dir, f))
+                    except Exception:
+                        pass
+    except Exception:
+        pass
+
+def _prune_old_tasks():
+    if len(tasks) > 60:
+        keys = list(tasks.keys())
+        for k in keys[:-30]:
+            tasks.pop(k, None)
 
 def _cookie_error_hint(browser):
     """Return a human-readable fix message for a cookie error."""
@@ -101,6 +125,16 @@ PLAYER_CLIENTS_LADDER = [
     ['android'],
 ]
 
+def _get_ffmpeg_location():
+    try:
+        import static_ffmpeg
+        static_ffmpeg.add_paths()
+    except Exception:
+        pass
+    import shutil
+    p = shutil.which('ffmpeg')
+    return os.path.dirname(p) if p else None
+
 def _make_base_opts(outtmpl, hook, is_pl, browser, player_clients):
     opts = {
         'outtmpl':        outtmpl,
@@ -108,11 +142,35 @@ def _make_base_opts(outtmpl, hook, is_pl, browser, player_clients):
         'noplaylist':     not is_pl,
         'quiet':          True,
         'no_warnings':    False,
+        'prefer_ffmpeg':  True,
         'extractor_args': {'youtube': {'player_client': player_clients}},
     }
+    ffmpeg_loc = _get_ffmpeg_location()
+    if ffmpeg_loc:
+        opts['ffmpeg_location'] = ffmpeg_loc
     if browser and browser != 'none':
         opts['cookiesfrombrowser'] = (browser,)
     return opts
+
+def _log_resolution_preview(tid, info, quality, filetype):
+    if not info:
+        return
+    if filetype in ('mp3', 'm4a'):
+        log(tid, 'INFO', f'Target: Audio extraction ({filetype.upper()} @ 320kbps)')
+        return
+    formats = info.get('formats') or []
+    heights = sorted({f['height'] for f in formats if f.get('height') and f.get('vcodec') != 'none'}, reverse=True)
+    if heights:
+        res_list = ', '.join(f'{h}p' for h in heights[:6])
+        log(tid, 'INFO', f'Available resolutions: {res_list}')
+        best_h = heights[0]
+        suggested = '1080p (Smoothest playback & optimal size)' if best_h >= 1080 else f'{best_h}p (Maximum available)'
+        log(tid, 'INFO', f'Suggested Quality: {suggested}')
+        req_h = _max_height(quality)
+        if req_h and req_h > best_h:
+            log(tid, 'INFO', f'Note: Requested {req_h}p exceeds video maximum ({best_h}p). Auto-selecting {best_h}p.')
+    q_label = "BEST (Highest resolution)" if (quality or 'best').lower() == 'best' else f"{quality.upper()}p"
+    log(tid, 'INFO', f'Target: {q_label} ({filetype.upper()}) — Auto-merging best video + audio')
 
 def download_task(tid, url, save_dir, browser, quality, filetype):
     tasks[tid].update({
@@ -124,8 +182,9 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
     os.makedirs(save_dir, exist_ok=True)
     is_pl = 'list=' in url
 
-    import os as _os
-    _os.environ['PATH'] = '/opt/homebrew/bin:' + _os.environ.get('PATH', '')
+    import os as _os, platform as _plat
+    if _plat.system() == 'Darwin':
+        _os.environ['PATH'] = '/opt/homebrew/bin:/usr/local/bin:' + _os.environ.get('PATH', '')
 
     def hook(d):
         if tasks[tid].get('cancel'):
@@ -149,10 +208,21 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
             log_update_last(tid, 'DL', f'{item_str}{pct}  {spd}  ETA {eta}  \u2014  {fname[:40]}')
         elif d['status'] == 'finished':
             fname = os.path.basename(d.get('filename', ''))
-            tasks[tid]['item'] = tasks[tid].get('item', 0) + 1
-            item  = tasks[tid]['item']
             total = tasks[tid]['total']
-            log(tid, 'DONE', f'[{item}/{total}] Saved: {fname}')
+            if not is_pl:
+                tasks[tid]['item'] = 1
+                if not tasks[tid].get('_single_logged'):
+                    tasks[tid]['_single_logged'] = True
+                    log(tid, 'DONE', f'Saved: {fname}')
+            else:
+                info_dict = d.get('info_dict') or {}
+                pl_idx = info_dict.get('playlist_index')
+                if pl_idx:
+                    tasks[tid]['item'] = pl_idx
+                else:
+                    tasks[tid]['item'] = min(tasks[tid].get('item', 0) + 1, total)
+                item = tasks[tid]['item']
+                log(tid, 'DONE', f'[{item}/{total}] Saved: {fname}')
 
     outtmpl = os.path.join(
         save_dir,
@@ -243,17 +313,11 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
         first = entries[0] if entries else None
         if first:
             _log_resolution_preview(tid, first, quality, filetype)
-        # Show resolution preview from first video
-        first = entries[0] if entries else None
-        if first:
-            _log_resolution_preview(tid, first, quality, filetype)
     else:
         dur = info.get('duration_string') or f'{info.get("duration", "?")}s'
         log(tid, 'INFO', f'Video: "{info.get("title", "")}" \u2014 {dur}')
         tasks[tid]['total'] = 1
         tasks[tid]['item']  = 0
-        # Show resolution BEFORE download
-        _log_resolution_preview(tid, info, quality, filetype)
         # Show resolution BEFORE download
         _log_resolution_preview(tid, info, quality, filetype)
 
@@ -302,6 +366,7 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
             if 'cancelled' in msg.lower():
                 tasks[tid]['status'] = 'cancelled'
                 log(tid, 'ERROR', 'Download cancelled.')
+                _cleanup_partial_files(save_dir)
                 return
 
             # Cookie error mid-download — strip and retry same format once
@@ -338,6 +403,7 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
         f'Last error: {last_error}')
 
 def start(tid, url, save_dir, browser, quality, filetype):
+    _prune_old_tasks()
     t = threading.Thread(
         target=download_task,
         args=(tid, url, save_dir, browser, quality, filetype)

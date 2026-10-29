@@ -43,20 +43,24 @@
 
   <!-- DOWNLOAD -->
   <div class="glass">
-    <span class="slabel" style="display:block;margin-bottom:12px">YouTube URL</span>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <span class="slabel">YouTube URL</span>
+      <span id="urlBadge" class="ftype" style="display:none;padding:2px 8px;font-size:.65rem"></span>
+    </div>
 
     <div class="input-wrap">
-      <input type="text" id="urlInput" placeholder="Paste video or playlist URL…" oninput="onUrl(this)"/>
+      <input type="text" id="urlInput" placeholder="Paste video or playlist URL… (Press Enter to download)" oninput="onUrl(this)"/>
       <button class="inp-clear" id="xBtn" onclick="clearUrl()">✕</button>
     </div>
 
     <div class="opts-grid">
-      <div class="opt-group">
-        <span class="opt-lbl">Resolution</span>
+      <div class="opt-group" id="resGroup">
+        <span class="opt-lbl" id="resLbl">Resolution</span>
         <div class="seg sq">
-          <input type="radio" name="q" id="qb" value="best" checked><label for="qb">Best</label>
+          <input type="radio" name="q" id="qb" value="best" checked><label for="qb" title="Auto-detect and merge highest quality video and audio">Best (Auto)</label>
+          <input type="radio" name="q" id="q10" value="1080"><label for="q10" title="Suggested: 1080p Full HD (Smoothest playback &amp; fast merge)">1080p ★</label>
           <input type="radio" name="q" id="q4" value="4k"><label for="q4">4K</label>
-          <input type="radio" name="q" id="q10" value="1080"><label for="q10">1080p</label>
+          <input type="radio" name="q" id="q8" value="8k"><label for="q8">8K</label>
           <input type="radio" name="q" id="q72" value="720"><label for="q72">720p</label>
           <input type="radio" name="q" id="q48" value="480"><label for="q48">480p</label>
           <input type="radio" name="q" id="q36" value="360"><label for="q36">360p</label>
@@ -73,16 +77,17 @@
       </div>
       <div class="opt-group">
         <span class="opt-lbl">Cookies From</span>
-        <div class="seg sb">
-          <input type="radio" name="br" id="bsaf" value="safari" checked><label for="bsaf">Safari</label>
-          <input type="radio" name="br" id="bch" value="chrome"><label for="bch">Chrome</label>
-          <input type="radio" name="br" id="bff" value="firefox"><label for="bff">Firefox</label>
-          <input type="radio" name="br" id="bno" value="none"><label for="bno">None</label>
+        <div class="seg sb" id="browserSeg">
+          <input type="radio" name="br" id="bsaf" value="safari" checked><label for="bsaf" id="lblSaf">Safari</label>
+          <input type="radio" name="br" id="bch" value="chrome"><label for="bch" id="lblCh">Chrome</label>
+          <input type="radio" name="br" id="bedge" value="edge"><label for="bedge" id="lblEdge" style="display:none">Edge</label>
+          <input type="radio" name="br" id="bff" value="firefox"><label for="bff" id="lblFf">Firefox</label>
+          <input type="radio" name="br" id="bno" value="none"><label for="bno" id="lblNo">None</label>
         </div>
       </div>
     </div>
 
-    <div class="notice">Keep the selected browser open and logged into YouTube before downloading.</div>
+    <div class="notice">⚡ Video and audio streams are automatically merged in highest quality. Keep browser open if downloading age-restricted videos.</div>
 
     <div class="btn-row">
         <button class="btn-primary" id="dlBtn" onclick="startDownload()">Download Now</button>

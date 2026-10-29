@@ -116,6 +116,7 @@ jobs:
             --hidden-import webview \
             --hidden-import flask \
             main.py
+          codesign --force --deep --sign - "dist/YT Downloader.app"
       - name: Build DMG
         run: |
           VERSION="${{ github.ref_name }}"
@@ -155,16 +156,18 @@ jobs:
             | 🍎 macOS | `YT-Downloader.dmg` |
 
             ### What's New
-            - Cleaned repo: removed build artifacts, __pycache__, downloads folder
-            - Added MIT LICENSE file
-            - Fixed CI workflows to use dynamic version from tag
-            - Improved format fallback engine
-            - Live download progress and terminal log
+            - Apple Silicon (M1/M2/M3/M4) native codesign support
+            - Automatic audio and video merging in Best & Suggested quality
+            - 8K, 4K, 1080p, and audio extraction support
+            - Cross-platform native folder pickers and openers
 
-            ### Install
-            - **Windows:** Run `.exe` directly
-            - **Linux:** `sudo dpkg -i yt-downloader-*-amd64.deb`
-            - **macOS:** Open DMG → drag to Applications → right-click Open on first launch
+            ### Install & First Launch (macOS M1/M2/M3/M4 & Intel)
+            - Open DMG → drag to Applications
+            - If macOS says *"damaged and can't be opened"*, open Terminal and run:
+              ```bash
+              xattr -cr "/Applications/YT Downloader.app"
+              ```
+            - Or go to System Settings → Privacy & Security → Open Anyway.
           files: |
             windows-exe/YT-Downloader.exe
             linux-deb/yt-downloader-*.deb

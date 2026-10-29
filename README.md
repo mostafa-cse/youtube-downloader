@@ -41,11 +41,16 @@ Full documentation, screenshots, FAQ, and one-click download — all on the land
 ## 📥 Download & Install (macOS)
 
 1. Download **`YT-Downloader.dmg`** from [**Releases →**](../../releases/latest)
-2. Double-click the `.dmg` file
-3. Drag **YT Downloader** → **Applications**
-4. Right-click the app → **Open** → **Open** *(first launch only — bypasses Gatekeeper)*
+2. Double-click the `.dmg` file and drag **YT Downloader** → **Applications**
+3. **First launch on Apple Silicon (M1/M2/M3/M4) & Intel**:
+   - Right-click the app → **Open** → **Open**, OR
+   - Go to **System Settings** → **Privacy & Security** → scroll to **Security** → click **Open Anyway**, OR
+   - If macOS says *"damaged and can't be opened"*, run this one-time command in Terminal:
+     ```bash
+     xattr -cr "/Applications/YT Downloader.app"
+     ```
 
-> ✅ No Python, no Terminal, no setup needed. FFmpeg is bundled inside the app.
+> ✅ No Python, no Terminal setup needed. FFmpeg is automatically bundled inside the app.
 
 ---
 

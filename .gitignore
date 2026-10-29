@@ -7,3 +7,4 @@ dist/
 *.spec
 .DS_Store
 *.pdf
+.pytest_cache/

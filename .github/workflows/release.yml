@@ -135,6 +135,7 @@ jobs:
             --hidden-import webview \
             --hidden-import flask \
             main.py
+          codesign --force --deep --sign - "dist/YT Downloader.app"
 
       - name: Build DMG
         run: |
@@ -182,17 +183,19 @@ jobs:
             | 🍎 macOS 12+ | `YT-Downloader.dmg` | Open DMG → drag to Apps |
 
             ### ✨ What's New in ${{ github.ref_name }}
-            - Cleaned repo: removed all build artifacts, `__pycache__`, and accidentally committed downloads
-            - Added MIT LICENSE file
-            - Fixed CI workflows to use dynamic version from Git tag
-            - macOS: added app icon (`--icon YTDownloader.icns`) to PyInstaller build
-            - Improved format fallback engine for YouTube API changes
-            - Live download progress, speed, ETA and terminal log
-            - Cancel download at any time
-            - Clear history without deleting files
+            - Apple Silicon (M1/M2/M3/M4) native codesign support
+            - Automatic audio and video merging in Best & Suggested quality
+            - 8K, 4K, 1080p, and audio extraction support
+            - Cross-platform native folder pickers and openers
 
-            ### 📖 First Launch (macOS)
-            > Right-click the app → **Open** → **Open** *(bypasses Gatekeeper — one time only)*
+            ### 📖 First Launch (macOS Apple Silicon M1/M2/M3/M4 & Intel)
+            If macOS says *"YT Downloader is damaged and can't be opened"* or blocks the app:
+            1. Open **Terminal** and run:
+               ```bash
+               xattr -cr "/Applications/YT Downloader.app"
+               ```
+            2. Or go to **System Settings** → **Privacy & Security** → scroll to **Security** → click **Open Anyway**.
+            3. Or right-click **YT Downloader.app** → click **Open** → click **Open**.
 
             ### 🛠 Run From Source
             ```bash
