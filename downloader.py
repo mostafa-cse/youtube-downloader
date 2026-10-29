@@ -114,15 +114,15 @@ def _cookie_error_hint(browser):
         'or select \'None\' for Cookies.'
     )
 
-# Player clients tried in order — ios/android bypass most YouTube restrictions
-# web = highest quality (1080p/4K). ios/android = 144p/360p only!
+# Player clients tried in order: default yt-dlp first (broadest format support),
+# followed by tv_embedded, mweb, android, ios, and web.
 PLAYER_CLIENTS_LADDER = [
-    ['web'],
-    ['web', 'tv_embedded'],
-    ['tv_embedded'],
+    None,            # Default: yt-dlp smart client negotiation (1080p/4K/8K)
+    ['tv_embedded'], # Reliable 1080p fallback without JS challenge requirement
     ['mweb'],
-    ['ios'],
     ['android'],
+    ['ios'],
+    ['web'],
 ]
 
 def _get_ffmpeg_location():
@@ -143,8 +143,9 @@ def _make_base_opts(outtmpl, hook, is_pl, browser, player_clients):
         'quiet':          True,
         'no_warnings':    False,
         'prefer_ffmpeg':  True,
-        'extractor_args': {'youtube': {'player_client': player_clients}},
     }
+    if player_clients:
+        opts['extractor_args'] = {'youtube': {'player_client': player_clients}}
     ffmpeg_loc = _get_ffmpeg_location()
     if ffmpeg_loc:
         opts['ffmpeg_location'] = ffmpeg_loc
@@ -239,6 +240,7 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
 
     # ─── METADATA FETCH ─────────────────────────────────────────────────────────
     info = None
+    successful_clients = None
     cookie_error_shown = False
 
     for clients in PLAYER_CLIENTS_LADDER:
@@ -251,8 +253,14 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
 
         try:
             with yt_dlp.YoutubeDL({**base_opts, 'format': 'bestvideo+bestaudio/best'}) as ydl:
-                log(tid, 'INFO', 'Fetching video metadata\u2026')
-                info = ydl.extract_info(url, download=False)
+                log(tid, 'INFO', 'Fetching video metadata…')
+                extracted = ydl.extract_info(url, download=False)
+                formats = extracted.get('formats') or []
+                has_media = any(f.get('vcodec') != 'none' or f.get('acodec') != 'none' for f in formats)
+                if not has_media and formats:
+                    continue
+                info = extracted
+                successful_clients = clients
             break
 
         except Exception as e:
@@ -322,8 +330,7 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
         _log_resolution_preview(tid, info, quality, filetype)
 
     # ─── DOWNLOAD WITH FORMAT FALLBACK LADDER ────────────────────────────────
-    best_clients = PLAYER_CLIENTS_LADDER[0]
-    base_opts = _make_base_opts(outtmpl, hook, is_pl, effective_browser, best_clients)
+    base_opts = _make_base_opts(outtmpl, hook, is_pl, effective_browser, successful_clients)
 
     if effective_browser != browser and browser and browser != 'none':
         log(tid, 'WARN',
@@ -376,7 +383,7 @@ def download_task(tid, url, save_dir, browser, quality, filetype):
                     ' Retrying without cookies\u2026')
                 effective_browser = None
                 base_opts = _make_base_opts(
-                    outtmpl, hook, is_pl, None, best_clients)
+                    outtmpl, hook, is_pl, None, successful_clients)
                 opts = {**base_opts, **fmt_opts}
                 try:
                     with yt_dlp.YoutubeDL(opts) as ydl:
