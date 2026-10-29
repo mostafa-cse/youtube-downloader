@@ -26,6 +26,10 @@ jobs:
         run: |
           pip install flask pywebview yt-dlp static-ffmpeg pyinstaller pillow
 
+      - name: Pre-fetch static FFmpeg binaries
+        run: |
+          python -c "import static_ffmpeg; static_ffmpeg.add_paths()"
+
       - name: Build EXE
         run: |
           pyinstaller --noconfirm --windowed --onefile `
@@ -70,6 +74,10 @@ jobs:
       - name: Install Python deps
         run: |
           pip install --system-site-packages flask pywebview yt-dlp static-ffmpeg pyinstaller pillow platformdirs importlib_resources jaraco.text || pip install flask pywebview yt-dlp static-ffmpeg pyinstaller pillow platformdirs importlib_resources jaraco.text
+
+      - name: Pre-fetch static FFmpeg binaries
+        run: |
+          python3 -c "import static_ffmpeg; static_ffmpeg.add_paths()"
 
       - name: Build binary
         run: |
@@ -145,6 +153,10 @@ jobs:
         run: |
           pip install flask pywebview yt-dlp static-ffmpeg pyinstaller pillow
           brew install create-dmg
+
+      - name: Pre-fetch static FFmpeg binaries
+        run: |
+          python3 -c "import static_ffmpeg; static_ffmpeg.add_paths()"
 
       - name: Build app
         run: |

@@ -1,9 +1,24 @@
 import sys, os, time, threading, urllib.request
 
+# Fix for Windows PyInstaller --windowed mode where sys.stdout and sys.stderr are None
+class _NullWriter:
+    encoding = "utf-8"
+    errors = "replace"
+    def write(self, *args, **kwargs): pass
+    def writelines(self, *args, **kwargs): pass
+    def flush(self): pass
+    def isatty(self): return False
+    def close(self): pass
+
+if sys.stdout is None:
+    sys.stdout = _NullWriter()
+if sys.stderr is None:
+    sys.stderr = _NullWriter()
+
 try:
     import static_ffmpeg
-    static_ffmpeg.add_paths()   # injects ffmpeg into PATH from venv — no brew needed
-except ImportError:
+    static_ffmpeg.add_paths()   # injects ffmpeg into PATH
+except Exception:
     pass
 
 sys.path.insert(0, os.path.dirname(__file__))
