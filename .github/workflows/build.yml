@@ -1,176 +1,25 @@
-name: Build All Platforms
+name: CI Tests
 
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-
-  build-windows:
-    runs-on: windows-latest
+  test:
+    name: Run Unit & Regression Tests
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Install dependencies
         run: |
-          pip install flask pywebview yt-dlp static-ffmpeg pyinstaller
-      - name: Build EXE
-        run: |
-          pyinstaller --noconfirm --windowed --onefile `
-            --name "YT-Downloader" `
-            --add-data "templates;templates" `
-            --add-data "static;static" `
-            --hidden-import yt_dlp `
-            --hidden-import webview `
-            --hidden-import flask `
-            main.py
-      - uses: actions/upload-artifact@v4
-        with:
-          name: windows-exe
-          path: dist/YT-Downloader.exe
+          pip install -r requirements.txt pytest requests pillow
 
-  build-linux:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install system deps
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y \
-            libgtk-3-dev \
-            libwebkit2gtk-4.0-dev \
-            gir1.2-webkit2-4.0 \
-            dpkg-dev
-      - name: Install Python deps
-        run: |
-          pip install flask pywebview yt-dlp static-ffmpeg pyinstaller
-      - name: Build binary
-        run: |
-          pyinstaller --noconfirm --onefile \
-            --name "yt-downloader" \
-            --add-data "templates:templates" \
-            --add-data "static:static" \
-            --hidden-import yt_dlp \
-            --hidden-import webview \
-            --hidden-import flask \
-            main.py
-      - name: Package .deb
-        run: |
-          VERSION="${{ github.ref_name }}"
-          VERSION="${VERSION#v}"  # strip leading 'v'
-          mkdir -p pkg/DEBIAN
-          mkdir -p pkg/usr/bin
-          mkdir -p pkg/usr/share/applications
-          cp dist/yt-downloader pkg/usr/bin/yt-downloader
-          chmod +x pkg/usr/bin/yt-downloader
-          cat > pkg/DEBIAN/control << CTRL
-          Package: yt-downloader
-          Version: ${VERSION}
-          Architecture: amd64
-          Maintainer: Mostafa Kamal <mostafa-cse@github.com>
-          Depends: libgtk-3-0, libwebkit2gtk-4.0-37
-          Description: Free YouTube Downloader
-           Open-source YouTube downloader GUI. Powered by yt-dlp. No ads.
-          CTRL
-          cat > pkg/usr/share/applications/yt-downloader.desktop << DESK
-          [Desktop Entry]
-          Version=1.0
-          Type=Application
-          Name=YT Downloader
-          Comment=Free YouTube video downloader
-          Exec=/usr/bin/yt-downloader
-          Icon=yt-downloader
-          Terminal=false
-          Categories=Utility;Network;
-          DESK
-          dpkg-deb --build pkg yt-downloader-${VERSION}-amd64.deb
-      - uses: actions/upload-artifact@v4
-        with:
-          name: linux-deb
-          path: yt-downloader-*.deb
-
-  build-macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install deps
-        run: |
-          pip install flask pywebview yt-dlp static-ffmpeg pyinstaller
-          brew install create-dmg
-      - name: Build app
-        run: |
-          pyinstaller --noconfirm --windowed --onedir \
-            --name "YT Downloader" \
-            --icon YTDownloader.icns \
-            --add-data "templates:templates" \
-            --add-data "static:static" \
-            --hidden-import yt_dlp \
-            --hidden-import webview \
-            --hidden-import flask \
-            main.py
-          codesign --force --deep --sign - "dist/YT Downloader.app"
-      - name: Build DMG
-        run: |
-          VERSION="${{ github.ref_name }}"
-          create-dmg \
-            --volname "YT Downloader" \
-            --window-size 660 400 \
-            --icon-size 120 \
-            --app-drop-link 480 170 \
-            "YT-Downloader-${VERSION}.dmg" \
-            "dist/YT Downloader.app" || true
-      - uses: actions/upload-artifact@v4
-        with:
-          name: macos-dmg
-          path: YT-Downloader-*.dmg
-
-  release:
-    needs: [build-windows, build-linux, build-macos]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@v4
-      - name: List artifacts
-        run: find . -type f
-      - uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: "YT Downloader ${{ github.ref_name }}"
-          body: |
-            ## YT Downloader ${{ github.ref_name }}
-
-            ### Downloads
-            | Platform | File |
-            |---|---|
-            | 🪟 Windows | `YT-Downloader.exe` |
-            | 🐧 Linux (Ubuntu/Debian) | `yt-downloader-amd64.deb` |
-            | 🍎 macOS | `YT-Downloader.dmg` |
-
-            ### What's New
-            - Apple Silicon (M1/M2/M3/M4) native codesign support
-            - Automatic audio and video merging in Best & Suggested quality
-            - 8K, 4K, 1080p, and audio extraction support
-            - Cross-platform native folder pickers and openers
-
-            ### Install & First Launch (macOS M1/M2/M3/M4 & Intel)
-            - Open DMG → drag to Applications
-            - If macOS says *"damaged and can't be opened"*, open Terminal and run:
-              ```bash
-              xattr -cr "/Applications/YT Downloader.app"
-              ```
-            - Or go to System Settings → Privacy & Security → Open Anyway.
-          files: |
-            windows-exe/YT-Downloader.exe
-            linux-deb/yt-downloader-*.deb
-            macos-dmg/YT-Downloader-*.dmg
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run pytest test suite
+        run: pytest
