@@ -69,7 +69,7 @@ jobs:
 
       - name: Install Python deps
         run: |
-          pip install --system-site-packages flask pywebview yt-dlp static-ffmpeg pyinstaller pillow || pip install flask pywebview yt-dlp static-ffmpeg pyinstaller pillow
+          pip install --system-site-packages flask pywebview yt-dlp static-ffmpeg pyinstaller pillow jaraco.text || pip install flask pywebview yt-dlp static-ffmpeg pyinstaller pillow jaraco.text
 
       - name: Build binary
         run: |
@@ -83,6 +83,9 @@ jobs:
             --collect-all static_ffmpeg \
             --collect-all gi \
             --collect-all cairo \
+            --collect-all jaraco.text \
+            --collect-all jaraco.functools \
+            --collect-all jaraco.context \
             main.py
 
       - name: Package .deb
