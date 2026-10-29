@@ -100,38 +100,24 @@
       </div>
     </div>
 
-    <!-- FORMAT & COOKIES ROW (2-Column Grid) -->
-    <div class="opts-grid-2">
-      <!-- Format -->
-      <div class="opt-group">
+    <!-- FORMAT (Full Width Segmented Bar) -->
+    <div class="opt-group">
+      <div class="opt-lbl-row">
         <span class="opt-lbl">Output Format</span>
-        <div class="seg sf">
-          <input type="radio" name="ft" id="fmp4" value="mp4" checked><label for="fmp4">🎬 MP4</label>
-          <input type="radio" name="ft" id="fmkv" value="mkv"><label for="fmkv">🎞️ MKV</label>
-          <input type="radio" name="ft" id="fmp3" value="mp3"><label for="fmp3">🎵 MP3 (Audio)</label>
-          <input type="radio" name="ft" id="fm4a" value="m4a"><label for="fm4a">🎧 M4A</label>
-        </div>
+        <span class="opt-hint">Universal Video or Audio extraction</span>
       </div>
-      <!-- Cookies -->
-      <div class="opt-group">
-        <div class="opt-lbl-row">
-          <span class="opt-lbl">Cookies From</span>
-          <span class="opt-hint-sub" title="Helps bypass age/bot restrictions">Bot / Age Bypass</span>
-        </div>
-        <div class="seg sb" id="browserSeg">
-          <input type="radio" name="br" id="bsaf" value="safari" checked><label for="bsaf" id="lblSaf">Safari</label>
-          <input type="radio" name="br" id="bch" value="chrome"><label for="bch" id="lblCh">Chrome</label>
-          <input type="radio" name="br" id="bedge" value="edge"><label for="bedge" id="lblEdge" style="display:none">Edge</label>
-          <input type="radio" name="br" id="bff" value="firefox"><label for="bff" id="lblFf">Firefox</label>
-          <input type="radio" name="br" id="bno" value="none"><label for="bno" id="lblNo">None</label>
-        </div>
+      <div class="seg sf">
+        <input type="radio" name="ft" id="fmp4" value="mp4" checked><label for="fmp4">🎬 MP4 (Universal Video)</label>
+        <input type="radio" name="ft" id="fmkv" value="mkv"><label for="fmkv">🎞️ MKV (High Quality)</label>
+        <input type="radio" name="ft" id="fmp3" value="mp3"><label for="fmp3">🎵 MP3 (Audio 320kbps)</label>
+        <input type="radio" name="ft" id="fm4a" value="m4a"><label for="fm4a">🎧 M4A (Lossless Audio)</label>
       </div>
     </div>
 
     <!-- Smart Notice -->
     <div class="notice">
       <span class="notice-icon">⚡</span>
-      <span>Streams are automatically multiplexed via static FFmpeg. Keep your browser open if downloading member-only or age-restricted videos.</span>
+      <span>High-resolution video and audio streams are automatically merged in maximum quality with zero ads or tracking.</span>
     </div>
 
     <!-- Action Buttons -->

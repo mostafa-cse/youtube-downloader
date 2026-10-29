@@ -11,26 +11,6 @@ let curFolder='', poll=null, autoRefresh=null, curTid=null, hostOS='';
 
 function setupBrowserOptions(sys){
   hostOS = sys || '';
-  const saf = document.getElementById('bsaf');
-  const lblSaf = document.getElementById('lblSaf');
-  const edge = document.getElementById('bedge');
-  const lblEdge = document.getElementById('lblEdge');
-  const ch = document.getElementById('bch');
-
-  if(sys === 'Windows'){
-    if(saf && lblSaf) { saf.style.display='none'; lblSaf.style.display='none'; }
-    if(edge && lblEdge) { edge.style.display=''; lblEdge.style.display=''; }
-    if(ch) ch.checked = true;
-  } else if(sys === 'Linux'){
-    if(saf && lblSaf) { saf.style.display='none'; lblSaf.style.display='none'; }
-    if(edge && lblEdge) { edge.style.display='none'; lblEdge.style.display='none'; }
-    if(ch) ch.checked = true;
-  } else {
-    // macOS / Darwin
-    if(saf && lblSaf) { saf.style.display=''; lblSaf.style.display=''; }
-    if(edge && lblEdge) { edge.style.display='none'; lblEdge.style.display='none'; }
-    if(saf) saf.checked = true;
-  }
 }
 
 fetch('/get-system-info').then(r=>r.json()).then(d=>{
@@ -189,7 +169,7 @@ function startDownload(){
   clearTerminal(); showProg(true); setProgWidth(3);
   fetch('/download',{
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({url, folder:curFolder, browser:g('br'), quality:g('q'), filetype:g('ft')})
+    body: JSON.stringify({url, folder:curFolder, browser:'none', quality:g('q'), filetype:g('ft')})
   })
   .then(r=>r.json())
   .then(d=>{ if(d.task_id){ curTid=d.task_id; pollStatus(d.task_id); } else showErr('Failed to start.'); })
